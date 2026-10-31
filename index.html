@@ -241,7 +241,6 @@
         align-items: center;
       }
 
-      /* Tối ưu màn hình điện thoại: Camera ở trên, 2 đáp án nằm song song ngang 1 hàng ở dưới */
       @media (max-width: 768px) {
         .game-card {
           padding: 10px;
@@ -249,17 +248,17 @@
         }
         .quiz-container {
           display: grid;
-          grid-template-columns: 1fr 1fr; /* 2 cột đáp án cân đối song song */
+          grid-template-columns: 1fr 1fr;
           gap: 10px;
           align-items: center;
         }
         .cam-center-wrapper {
-          grid-column: 1 / -1; /* Khung camera chiếm trọn hàng trên cùng */
+          grid-column: 1 / -1;
           order: -1;
           margin: 0 auto 5px auto;
         }
         .option-card {
-          min-height: 140px !important;
+          min-height: 150px !important;
           padding: 10px !important;
         }
         .question-title {
@@ -291,7 +290,7 @@
         overflow: hidden;
         position: relative;
         background: #222;
-        transform: scaleX(-1); /* Lật gương webcam tự nhiên */
+        transform: scaleX(-1);
       }
 
       .cam-circle-box video {
@@ -321,7 +320,7 @@
         box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
       }
 
-      /* Thẻ đáp án */
+      /* Thẻ đáp án cấu trúc Flexbox tự nhiên tránh đè icon */
       .option-card {
         background-color: #ffffff;
         border: 4px solid #f0f4f8;
@@ -330,13 +329,14 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        cursor: pointer;
+        justify-content: space-between; /* Tự động phân bổ không gian đều */
+        cursor: default; /* Không còn trỏ chuột click */
+        pointer-events: none; /* Vô hiệu hóa mọi thao tác click chạm */
         box-shadow:
           0 6px 0 #d9e2ec,
           0 10px 20px rgba(0, 0, 0, 0.05);
         transition: all 0.2s ease;
-        min-height: 190px;
+        min-height: 200px;
         position: relative;
         overflow: hidden;
         width: 100%;
@@ -362,6 +362,22 @@
         transition: width 0.05s linear;
       }
 
+      /* Nhãn chỉ dẫn Trái / Phải nằm ở luồng flex tự nhiên trên cùng */
+      .side-badge {
+        padding: 3px 10px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 6px;
+      }
+      .side-badge.left {
+        background: #4caf50;
+      }
+      .side-badge.right {
+        background: #ff5722;
+      }
+
       /* Bố cục phân tầng đồ vật */
       .items-group-container {
         display: flex;
@@ -369,8 +385,9 @@
         gap: 6px;
         align-items: center;
         justify-content: center;
-        margin-bottom: 8px;
         width: 100%;
+        flex-grow: 1;
+        margin: 4px 0;
       }
 
       .items-row {
@@ -403,25 +420,7 @@
         font-weight: 700;
         color: #37474f;
         text-align: center;
-      }
-
-      /* Nhãn chỉ dẫn Trái / Phải trên thẻ */
-      .side-badge {
-        position: absolute;
-        top: 6px;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-size: 11px;
-        font-weight: 700;
-        color: white;
-      }
-      .side-badge.left {
-        background: #4caf50;
-        left: 6px;
-      }
-      .side-badge.right {
-        background: #ff5722;
-        right: 6px;
+        margin-top: 4px;
       }
 
       /* Hiệu ứng phản hồi */
@@ -506,6 +505,28 @@
         margin-top: 6px;
         font-style: italic;
       }
+
+      .btn-restart {
+        background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-size: 20px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow:
+          0 5px 0 #1565c0,
+          0 8px 15px rgba(30, 136, 229, 0.35);
+        transition: all 0.1s ease;
+        font-family: "Fredoka", sans-serif;
+        margin-top: 15px;
+      }
+
+      .btn-restart:active {
+        transform: translateY(4px);
+        box-shadow: 0 1px 0 #1565c0;
+      }
     </style>
   </head>
   <body>
@@ -541,7 +562,7 @@
           <h2 class="question-title" id="question-text">Đang tải...</h2>
         </div>
 
-        <!-- BỐ CỤC CHUẨN ĐÃ FIX TRIỆT ĐỂ CHO MOBILE & DESKTOP -->
+        <!-- BỐ CỤC CHUẨN CAMERA + 2 ĐÁP ÁN -->
         <div class="quiz-container">
           <div id="left-option-slot" style="width: 100%"></div>
 
@@ -568,12 +589,18 @@
 
         <div class="score-box" id="final-score-text">Đạt: 0/0 Sao Vàng</div>
         <div class="teacher-note" id="teacher-eval-note"></div>
+
+        <div>
+          <button class="btn-restart" onclick="restartGame()">
+            🔄 CHƠI LẠI TỪ ĐẦU
+          </button>
+        </div>
       </div>
     </div>
 
     <script>
       /* ==========================================
-       1. DỮ LIỆU CÂU HỎI KÈM MẢNG TRẠNG THÁI ĐÁNH GIÁ
+       1. DỮ LIỆU CÂU HỎI
        ========================================== */
       const quizData = [
         {
@@ -631,6 +658,7 @@
       let isProcessing = false;
       let currentAudio = null;
       let questionResults = new Array(quizData.length).fill(null);
+      let finishMusic = null;
 
       /* ==========================================
        2. HỆ THỐNG ÂM THANH
@@ -722,6 +750,20 @@
         loadQuestion();
       }
 
+      function restartGame() {
+        if (finishMusic) {
+          finishMusic.pause();
+          finishMusic.currentTime = 0;
+        }
+        currentQuestionIndex = 0;
+        questionResults = new Array(quizData.length).fill(null);
+        isProcessing = false;
+
+        document.getElementById("end-screen").style.display = "none";
+        document.getElementById("quiz-screen").style.display = "block";
+        loadQuestion();
+      }
+
       function updateProgressBar() {
         const container = document.getElementById("progress-bar-container");
         container.innerHTML = "";
@@ -789,18 +831,19 @@
         }
         rowsHTML += "</div>";
 
+        // Sử dụng bố cục flex tự nhiên, đưa nhãn lên đầu không dùng position: absolute gây đè icon
         card.innerHTML = `
-        <div class="side-badge ${side}">${sideText}</div>
-        ${rowsHTML}
-        <div class="option-label">${opt.label}</div>
-        <div class="dwell-progress-bar"></div>
-      `;
+          <div class="side-badge ${side}">${sideText}</div>
+          ${rowsHTML}
+          <div class="option-label">${opt.label}</div>
+          <div class="dwell-progress-bar"></div>
+        `;
 
-        card.onclick = () => handleSelectOption(card, opt.isCorrect);
+        // Đã xóa sự kiện click, chỉ thao tác duy nhất bằng cử chỉ lắc đầu qua AI!
         return card;
       }
 
-      function handleSelectOption(cardElement, isCorrect) {
+      function triggerSelection(cardElement, isCorrect) {
         if (isProcessing) return;
         isProcessing = true;
         resetHeadFocus();
@@ -840,7 +883,7 @@
         document.getElementById("quiz-screen").style.display = "none";
         document.getElementById("end-screen").style.display = "block";
 
-        const finishMusic = new Audio("nhacket.mp3");
+        finishMusic = new Audio("nhacket.mp3");
         finishMusic
           .play()
           .catch((e) => console.log("Không phát được nhạc tổng kết:", e));
@@ -882,7 +925,7 @@
       }
 
       /* ==========================================
-       4. CAMERA & TÍCH HỢP AI VA CHẠM ĐẢO CHIỀU LOGIC
+       4. CAMERA & TÍCH HỢP AI LẮC ĐẦU
        ========================================== */
       const videoElement = document.getElementById("webcam-video");
       const overlayCanvas = document.getElementById("cam-overlay");
@@ -950,8 +993,8 @@
         }
 
         const landmarks = results.multiFaceLandmarks[0];
-        const w = overlayCanvas.width; // 120px
-        const h = overlayCanvas.height; // 120px
+        const w = overlayCanvas.width;
+        const h = overlayCanvas.height;
 
         let xMin = w,
           xMax = 0,
@@ -982,6 +1025,8 @@
           '.option-card[data-side="right"]',
         );
 
+        const currentQuiz = quizData[currentQuestionIndex];
+
         if (isCamLeftTouch && cardRight) {
           overlayCtx.strokeStyle = "#00E676";
           overlayCtx.fillStyle = "rgba(76, 175, 80, 0.65)";
@@ -989,7 +1034,11 @@
 
           camStatus.innerText = "👉 Lắc sang Phải";
           camStatus.style.background = "#ff5722";
-          processHeadDwell("right", cardRight);
+          processHeadDwell(
+            "right",
+            cardRight,
+            currentQuiz.options[1].isCorrect,
+          );
         } else if (isCamRightTouch && cardLeft) {
           overlayCtx.strokeStyle = "#00E676";
           overlayCtx.fillStyle = "rgba(76, 175, 80, 0.65)";
@@ -997,7 +1046,7 @@
 
           camStatus.innerText = "👈 Lắc sang Trái";
           camStatus.style.background = "#4caf50";
-          processHeadDwell("left", cardLeft);
+          processHeadDwell("left", cardLeft, currentQuiz.options[0].isCorrect);
         } else {
           overlayCtx.strokeStyle = "#FFEB3B";
           camStatus.innerText = "Lắc đầu chọn đáp án 😊";
@@ -1009,8 +1058,8 @@
         overlayCtx.strokeRect(xMin, yMin, xMax - xMin, yMax - yMin);
       }
 
-      function processHeadDwell(side, cardElement) {
-        const DWELL_TIME = 700; // Giảm nhẹ xuống 0.7s để bé dễ thao tác hơn
+      function processHeadDwell(side, cardElement, isCorrect) {
+        const DWELL_TIME = 700; // 0.7 giây giữ đầu
 
         if (currentFocusSide !== side) {
           resetHeadFocus();
@@ -1029,7 +1078,7 @@
             if (elapsed >= DWELL_TIME) {
               clearInterval(headSelectTimer);
               headSelectTimer = null;
-              cardElement.click();
+              triggerSelection(cardElement, isCorrect);
             }
           }, 30);
         }
