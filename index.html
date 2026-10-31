@@ -11,8 +11,18 @@
       href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Canvas Confetti cho hiệu ứng pháo hoa rầm rộ -->
+    <!-- Canvas Confetti cho hiệu ứng pháo hoa -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Thư viện MediaPipe Face Mesh nhận diện khuôn mặt -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"
+      crossorigin="anonymous"
+    ></script>
+
     <style>
       /* 1. RESET & BASE STYLES */
       * {
@@ -53,13 +63,13 @@
         z-index: 1;
       }
 
-      /* 2. GAME CARD (TỐI ƯU MOBILE FIRST) */
+      /* 2. GAME CARD */
       .game-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         width: 100%;
-        max-width: 850px;
+        max-width: 950px;
         border-radius: 36px;
         box-shadow:
           0 20px 50px rgba(255, 105, 180, 0.3),
@@ -169,24 +179,34 @@
 
       .progress-bar {
         display: flex;
-        gap: 10px;
+        gap: 12px;
         background: #fff0f5;
-        padding: 8px 18px;
+        padding: 8px 20px;
         border-radius: 25px;
         border: 3px dashed #ff80ab;
       }
 
-      .star {
-        font-size: 30px;
-        opacity: 0.25;
-        filter: grayscale(100%);
+      .star-slot {
+        font-size: 32px;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: inline-block;
       }
 
-      .star.active {
+      .star-slot.empty {
+        opacity: 0.25;
+        filter: grayscale(100%);
+      }
+
+      .star-slot.gold {
         opacity: 1;
         filter: none;
-        transform: scale(1.3) rotate(10deg);
+        transform: scale(1.25) rotate(8deg);
+      }
+
+      .star-slot.red {
+        opacity: 1;
+        filter: none;
+        transform: scale(1.25) rotate(-8deg);
       }
 
       /* Question Box */
@@ -207,30 +227,80 @@
         line-height: 1.35;
       }
 
-      /* Options Grid */
-      .options-grid {
+      /* 3. BỐ CỤC 3 CỘT: TRÁI - CAMERA TRÒN - PHẢI */
+      .quiz-container {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 180px 1fr;
         gap: 18px;
+        align-items: center;
       }
 
-      @media (max-width: 600px) {
-        .options-grid {
+      @media (max-width: 768px) {
+        .quiz-container {
           grid-template-columns: 1fr;
-          gap: 14px;
         }
-        .game-card {
-          padding: 18px;
-          border-radius: 28px;
-        }
-        .question-title {
-          font-size: 20px;
+        .cam-center-wrapper {
+          order: -1;
+          margin: 10px auto;
         }
       }
 
+      /* CAMERA CONTAINER TRÒN Ở GIỮA */
+      .cam-center-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .cam-circle-box {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        border: 6px solid #ff4081;
+        box-shadow:
+          0 0 25px rgba(255, 64, 129, 0.4),
+          inset 0 0 10px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        position: relative;
+        background: #222;
+        transform: scaleX(-1); /* Lật gương cho tự nhiên */
+      }
+
+      .cam-circle-box video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* Canvas đè trực tiếp lên camera tròn */
+      #cam-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .cam-badge {
+        background: #ff4081;
+        color: white;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 20px;
+        margin-top: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transition: all 0.2s ease;
+      }
+
+      /* Thẻ đáp án */
       .option-card {
         background-color: #ffffff;
-        border: 4px solid #f0f4f8;
+        border: 5px solid #f0f4f8;
         border-radius: 26px;
         padding: 18px;
         display: flex;
@@ -241,8 +311,10 @@
         box-shadow:
           0 8px 0 #d9e2ec,
           0 12px 25px rgba(0, 0, 0, 0.06);
-        transition: all 0.15s ease;
-        min-height: 220px;
+        transition: all 0.2s ease;
+        min-height: 230px;
+        position: relative;
+        overflow: hidden;
       }
 
       .option-card:active {
@@ -250,7 +322,28 @@
         box-shadow: 0 2px 0 #d9e2ec;
       }
 
-      /* 3. BỐ CỤC PHÂN TẦNG ĐỒ VẬT CHUẨN SƯ PHẠM */
+      /* Trạng thái khi bé đang lắc đầu giữ vào thẻ */
+      .option-card.head-focus {
+        border-color: #ff9800 !important;
+        background-color: #fff8e1 !important;
+        transform: scale(1.05);
+        box-shadow:
+          0 12px 0 #ffa726,
+          0 0 25px rgba(255, 152, 0, 0.5) !important;
+      }
+
+      /* Thanh tiến trình giữ đầu */
+      .dwell-progress-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 10px;
+        background: linear-gradient(90deg, #ff9800, #4caf50);
+        width: 0%;
+        transition: width 0.05s linear;
+      }
+
+      /* Bố cục phân tầng đồ vật */
       .items-group-container {
         display: flex;
         flex-direction: column;
@@ -332,54 +425,58 @@
         }
       }
 
-      /* Màn hình tổng kết */
+      /* MÀN HÌNH TỔNG KẾT BẢNG BÁO CÁO SAO */
       .end-screen {
         display: none;
         text-align: center;
-        padding: 30px 10px;
+        padding: 20px 10px;
       }
 
       .end-title {
-        font-size: 38px;
+        font-size: 34px;
+        color: #1565c0;
+        margin-bottom: 8px;
+        font-weight: 700;
+      }
+
+      .summary-card {
+        background: #f8fafc;
+        border: 3px dashed #90caf9;
+        border-radius: 24px;
+        padding: 20px;
+        margin: 15px auto;
+        max-width: 600px;
+      }
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+        background: white;
+        border-radius: 16px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .summary-star {
+        font-size: 26px;
+      }
+
+      .score-box {
+        font-size: 26px;
+        font-weight: 700;
         color: #2e7d32;
-        margin-bottom: 12px;
-        font-weight: 700;
+        margin-top: 15px;
       }
 
-      .end-trophy {
-        font-size: 100px;
-        margin: 15px 0;
-        animation: bounceTrophy 1.2s infinite alternate;
-      }
-
-      @keyframes bounceTrophy {
-        0% {
-          transform: translateY(0) scale(1);
-        }
-        100% {
-          transform: translateY(-16px) scale(1.08);
-        }
-      }
-
-      .btn-restart {
-        background: linear-gradient(135deg, #ff7043 0%, #ff3d00 100%);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 16px 40px;
-        font-size: 24px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow:
-          0 8px 0 #dd2c00,
-          0 12px 25px rgba(255, 61, 0, 0.35);
-        transition: all 0.15s ease;
-        font-family: "Fredoka", sans-serif;
-      }
-
-      .btn-restart:active {
-        transform: translateY(6px);
-        box-shadow: 0 2px 0 #dd2c00;
+      .teacher-note {
+        font-size: 18px;
+        color: #555;
+        margin-top: 8px;
+        font-style: italic;
       }
     </style>
   </head>
@@ -392,7 +489,9 @@
       <div id="start-screen" class="start-screen">
         <div style="font-size: 70px; margin-bottom: 10px">🌟🧸✨</div>
         <h1 class="start-title">BÉ VUI HỌC TOÁN</h1>
-        <p class="start-desc">Trò chơi toán học tương tác thông minh cho bé!</p>
+        <p class="start-desc">
+          Lắc đầu sang Trái/Phải để chọn đáp án tương ứng!
+        </p>
         <button class="btn-start" onclick="startGame()">BẮT ĐẦU CHƠI 🚀</button>
       </div>
 
@@ -407,10 +506,8 @@
           >
             🔊
           </button>
-          <div class="progress-bar">
-            <span class="star">⭐</span>
-            <span class="star">⭐</span>
-            <span class="star">⭐</span>
+          <div class="progress-bar" id="progress-bar-container">
+            <!-- Render các ngôi sao tương ứng từng câu hỏi -->
           </div>
         </div>
 
@@ -418,26 +515,42 @@
           <h2 class="question-title" id="question-text">Đang tải...</h2>
         </div>
 
-        <div class="options-grid" id="options-container"></div>
+        <!-- BỐ CỤC 3 CỘT VỚI CAMERA Ở GIỮA -->
+        <div class="quiz-container">
+          <div id="option-left-slot"></div>
+
+          <div class="cam-center-wrapper">
+            <div class="cam-circle-box">
+              <video id="webcam-video" autoplay playsinline muted></video>
+              <!-- Canvas đè lên video để vẽ ô va chạm và 2 cổng cảm biến -->
+              <canvas id="cam-overlay" width="160" height="160"></canvas>
+            </div>
+            <div class="cam-badge" id="cam-status">Đang mở cam...</div>
+          </div>
+
+          <div id="option-right-slot"></div>
+        </div>
       </div>
 
-      <!-- Màn hình chiến thắng -->
+      <!-- Màn hình tổng kết báo cáo kết quả -->
       <div id="end-screen" class="end-screen">
-        <h2 class="end-title">BÉ GIỎI XUẤT SẮC! 🎉</h2>
-        <p style="font-size: 22px; color: #555; margin-bottom: 15px">
-          Bé đã hoàn thành xuất sắc các thử thách!
+        <h2 class="end-title">📊 BẢNG TỔNG KẾT BÀI HỌC</h2>
+        <p style="font-size: 18px; color: #666">
+          Kết quả đánh giá từng câu hỏi của bé:
         </p>
-        <div class="end-trophy">🏆</div>
-        <br />
-        <button class="btn-restart" onclick="restartGame()">
-          Chơi Lại Từ Đầu 🔄
-        </button>
+
+        <div class="summary-card" id="summary-list">
+          <!-- Render kết quả chi tiết từng câu ở đây -->
+        </div>
+
+        <div class="score-box" id="final-score-text">Đạt: 0/0 Sao Vàng</div>
+        <div class="teacher-note" id="teacher-eval-note"></div>
       </div>
     </div>
 
     <script>
       /* ==========================================
-       1. DỮ LIỆU CÂU HỎI KÈM CẤU TRÚC PHÂN TẦNG
+       1. DỮ LIỆU CÂU HỎI KÈM MẢNG TRẠNG THÁI ĐÁNH GIÁ
        ========================================== */
       const quizData = [
         {
@@ -495,8 +608,11 @@
       let isProcessing = false;
       let currentAudio = null;
 
+      // Mảng lưu kết quả đánh giá từng câu: null (chưa làm), 'gold' (đúng), 'red' (sai)
+      let questionResults = new Array(quizData.length).fill(null);
+
       /* ==========================================
-       2. HỆ THỐNG ÂM THANH (CÂU HỎI & CHUỖI ĐÚNG ĐỢI CHẠY XONG)
+       2. HỆ THỐNG ÂM THANH
        ========================================== */
       function playCurrentAudio() {
         if (currentAudio) {
@@ -519,7 +635,6 @@
         });
       }
 
-      // Xử lý phát chuỗi âm thanh Đúng: tldung.mp3 -> Hết chạy votay.mp3 -> Đợi votay.mp3 chạy hết mới thực hiện callback
       function playCorrectSequence(onFinished) {
         const audioRight = new Audio("tldung.mp3");
         const audioCheer = new Audio("votay.mp3");
@@ -531,19 +646,16 @@
               audioCheer
                 .play()
                 .then(() => {
-                  // Đợi phát hết hẳn file votay.mp3 mới gọi hàm chuyển tiếp câu hỏi
                   audioCheer.onended = () => {
                     if (onFinished) onFinished();
                   };
                 })
-                .catch((err) => {
-                  console.log("Lỗi phát votay.mp3:", err);
+                .catch(() => {
                   if (onFinished) onFinished();
                 });
             };
           })
-          .catch((err) => {
-            console.log("Lỗi tldung.mp3, chuyển thẳng sang votay.mp3:", err);
+          .catch(() => {
             audioCheer
               .play()
               .then(() => {
@@ -551,15 +663,14 @@
                   if (onFinished) onFinished();
                 };
               })
-              .catch((e) => {
+              .catch(() => {
                 if (onFinished) onFinished();
               });
           });
       }
 
-      // Âm thanh báo sai ngộ nghĩnh bằng Web Audio API
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      function playWrongSound() {
+      function playWrongSound(onFinished) {
         if (audioCtx.state === "suspended") audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -568,11 +679,15 @@
 
         osc.type = "triangle";
         osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.25);
+        osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.35);
         gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
+        osc.stop(audioCtx.currentTime + 0.4);
+
+        setTimeout(() => {
+          if (onFinished) onFinished();
+        }, 500);
       }
 
       /* ==========================================
@@ -582,73 +697,113 @@
         if (audioCtx.state === "suspended") audioCtx.resume();
         document.getElementById("start-screen").style.display = "none";
         document.getElementById("quiz-screen").style.display = "block";
+        initCameraAI();
         loadQuestion();
+      }
+
+      function updateProgressBar() {
+        const container = document.getElementById("progress-bar-container");
+        container.innerHTML = "";
+
+        quizData.forEach((_, idx) => {
+          const span = document.createElement("span");
+          span.className = "star-slot";
+
+          if (questionResults[idx] === "gold") {
+            span.classList.add("gold");
+            span.innerText = "⭐";
+          } else if (questionResults[idx] === "red") {
+            span.classList.add("red");
+            span.innerText = "🔴";
+          } else {
+            span.classList.add("empty");
+            span.innerText = "⭐";
+          }
+          container.appendChild(span);
+        });
       }
 
       function loadQuestion() {
         isProcessing = false;
-        const currentQuiz = quizData[currentQuestionIndex];
+        resetHeadFocus();
+        updateProgressBar();
 
+        const currentQuiz = quizData[currentQuestionIndex];
         document.getElementById("question-text").innerText =
           currentQuiz.question;
 
-        const stars = document.querySelectorAll(".star");
-        stars.forEach((star, idx) => {
-          if (idx < currentQuestionIndex) star.classList.add("active");
-          else star.classList.remove("active");
-        });
+        const leftSlot = document.getElementById("option-left-slot");
+        const rightSlot = document.getElementById("option-right-slot");
+        leftSlot.innerHTML = "";
+        rightSlot.innerHTML = "";
 
-        const container = document.getElementById("options-container");
-        container.innerHTML = "";
+        const cardLeft = createOptionCard(currentQuiz.options[0], "left");
+        leftSlot.appendChild(cardLeft);
 
-        currentQuiz.options.forEach((opt) => {
-          const card = document.createElement("div");
-          card.className = "option-card";
-
-          let rowsHTML = '<div class="items-group-container">';
-          if (opt.row1 && opt.row1.length > 0) {
-            rowsHTML += `<div class="items-row">${opt.row1.map((img) => `<img src="${img}" class="item-img" alt="icon">`).join("")}</div>`;
-          }
-          if (opt.row2 && opt.row2.length > 0) {
-            rowsHTML += `<div class="items-row">${opt.row2.map((img) => `<img src="${img}" class="item-img" alt="icon">`).join("")}</div>`;
-          }
-          rowsHTML += "</div>";
-
-          card.innerHTML = `
-          ${rowsHTML}
-          <div class="option-label">${opt.label}</div>
-        `;
-
-          card.onclick = () => handleSelectOption(card, opt.isCorrect);
-          container.appendChild(card);
-        });
+        const cardRight = createOptionCard(currentQuiz.options[1], "right");
+        rightSlot.appendChild(cardRight);
 
         setTimeout(() => playCurrentAudio(), 300);
       }
 
+      function createOptionCard(opt, side) {
+        const card = document.createElement("div");
+        card.className = "option-card";
+        card.dataset.side = side;
+
+        let rowsHTML = '<div class="items-group-container">';
+        if (opt.row1 && opt.row1.length > 0) {
+          rowsHTML += `<div class="items-row">${opt.row1.map((img) => `<img src="${img}" class="item-img" alt="icon">`).join("")}</div>`;
+        }
+        if (opt.row2 && opt.row2.length > 0) {
+          rowsHTML += `<div class="items-row">${opt.row2.map((img) => `<img src="${img}" class="item-img" alt="icon">`).join("")}</div>`;
+        }
+        rowsHTML += "</div>";
+
+        card.innerHTML = `
+        ${rowsHTML}
+        <div class="option-label">${opt.label}</div>
+        <div class="dwell-progress-bar"></div>
+      `;
+
+        card.onclick = () => handleSelectOption(card, opt.isCorrect);
+        return card;
+      }
+
       function handleSelectOption(cardElement, isCorrect) {
         if (isProcessing) return;
+        isProcessing = true;
+        resetHeadFocus();
+        if (currentAudio) currentAudio.pause();
 
         if (isCorrect) {
-          isProcessing = true;
-          if (currentAudio) currentAudio.pause();
-
+          // Trả lời ĐÚNG -> Gắn Sao Vàng
+          questionResults[currentQuestionIndex] = "gold";
+          updateProgressBar();
           cardElement.classList.add("correct-anim");
-          triggerMassiveConfetti(); // Pháo hoa bùng nổ
+          triggerMassiveConfetti();
 
-          // GỌI CHUỖI ĐÚNG VÀ CHỜ PHÁT HẾT VỖ TAY MỚI CHUYỂN CÂU HỎI
           playCorrectSequence(() => {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < quizData.length) {
-              loadQuestion();
-            } else {
-              showEndScreen();
-            }
+            nextQuestionOrEnd();
           });
         } else {
-          playWrongSound();
+          // Trả lời SAI -> Gắn Sao Đỏ & Qua luôn câu tiếp theo
+          questionResults[currentQuestionIndex] = "red";
+          updateProgressBar();
           cardElement.classList.add("shake");
-          setTimeout(() => cardElement.classList.remove("shake"), 400);
+
+          playWrongSound(() => {
+            nextQuestionOrEnd();
+          });
+        }
+      }
+
+      function nextQuestionOrEnd() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+          loadQuestion();
+        } else {
+          showEndScreen();
         }
       }
 
@@ -656,21 +811,223 @@
         if (currentAudio) currentAudio.pause();
         document.getElementById("quiz-screen").style.display = "none";
         document.getElementById("end-screen").style.display = "block";
-        triggerMassiveConfetti();
 
-        const winSound = new Audio("votay.mp3");
-        winSound.play().catch((e) => {});
-      }
+        const summaryList = document.getElementById("summary-list");
+        summaryList.innerHTML = "";
 
-      function restartGame() {
-        currentQuestionIndex = 0;
-        document.getElementById("end-screen").style.display = "none";
-        document.getElementById("quiz-screen").style.display = "block";
-        loadQuestion();
+        let goldCount = 0;
+
+        quizData.forEach((quiz, idx) => {
+          const res = questionResults[idx];
+          const isGold = res === "gold";
+          if (isGold) goldCount++;
+
+          const row = document.createElement("div");
+          row.className = "summary-row";
+          row.innerHTML = `
+            <span>Câu ${idx + 1}: ${quiz.options.find((o) => o.isCorrect).label}</span>
+            <span class="summary-star">${isGold ? "⭐ (Đúng)" : "🔴 (Chưa đúng)"}</span>
+          `;
+          summaryList.appendChild(row);
+        });
+
+        document.getElementById("final-score-text").innerText =
+          `Đạt ${goldCount}/${quizData.length} Sao Vàng`;
+
+        const noteElem = document.getElementById("teacher-eval-note");
+        if (goldCount === quizData.length) {
+          noteElem.innerText =
+            "🌟 Nhận xét: Bé đạt điểm tuyệt đối! Rất xuất sắc!";
+          triggerMassiveConfetti();
+        } else if (goldCount >= Math.ceil(quizData.length / 2)) {
+          noteElem.innerText =
+            "👍 Nhận xét: Bé làm bài khá tốt, cô cần hỗ trợ bé ôn thêm các câu bị Sao Đỏ nhé!";
+        } else {
+          noteElem.innerText =
+            "💪 Nhận xét: Bé cần luyện tập thêm cùng cô giáo và phụ huynh!";
+        }
       }
 
       /* ==========================================
-       4. NỀN ĐỘNG RANDOM (TRÁI TIM HOẶC TUYẾT RƠI)
+       4. CAMERA & TÍCH HỢP AI VA CHẠM ĐẢO CHIỀU LOGIC
+       ========================================== */
+      const videoElement = document.getElementById("webcam-video");
+      const overlayCanvas = document.getElementById("cam-overlay");
+      const overlayCtx = overlayCanvas.getContext("2d");
+      const camStatus = document.getElementById("cam-status");
+
+      let headSelectTimer = null;
+      let dwellStartTime = null;
+      let currentFocusSide = null;
+      let cameraStarted = false;
+
+      function initCameraAI() {
+        if (cameraStarted) return;
+        cameraStarted = true;
+
+        const faceMesh = new FaceMesh({
+          locateFile: (file) =>
+            `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+        });
+
+        faceMesh.setOptions({
+          maxNumFaces: 1,
+          refineLandmarks: false,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5,
+        });
+
+        faceMesh.onResults(onFaceResults);
+
+        const camera = new Camera(videoElement, {
+          onFrame: async () => {
+            await faceMesh.send({ image: videoElement });
+          },
+          width: 320,
+          height: 240,
+        });
+
+        camera.start().catch((err) => {
+          console.error("Lỗi bật Camera:", err);
+          camStatus.innerText = "Chưa bật Cam";
+          camStatus.style.background = "#ff5252";
+        });
+      }
+
+      function onFaceResults(results) {
+        if (
+          isProcessing ||
+          document.getElementById("quiz-screen").style.display === "none"
+        ) {
+          resetHeadFocus();
+          overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+          return;
+        }
+
+        overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+        if (
+          !results.multiFaceLandmarks ||
+          results.multiFaceLandmarks.length === 0
+        ) {
+          camStatus.innerText = "Tìm bé...";
+          camStatus.style.background = "#ff9800";
+          resetHeadFocus();
+          return;
+        }
+
+        const landmarks = results.multiFaceLandmarks[0];
+        const w = overlayCanvas.width; // 160px
+        const h = overlayCanvas.height; // 160px
+
+        // 1. Tính toán Bounding Box ôm sát đầu bé
+        let xMin = w,
+          xMax = 0,
+          yMin = h,
+          yMax = 0;
+        for (const lm of landmarks) {
+          const x = lm.x * w;
+          const y = lm.y * h;
+          if (x < xMin) xMin = x;
+          if (x > xMax) xMax = x;
+          if (y < yMin) yMin = y;
+          if (y > yMax) yMax = y;
+        }
+
+        const sensorWidth = 22; // Độ rộng vùng cảm biến
+
+        // Vẽ 2 Vùng cảm biến mặc định
+        overlayCtx.fillStyle = "rgba(255, 152, 0, 0.35)";
+        overlayCtx.fillRect(0, 0, sensorWidth, h);
+        overlayCtx.fillRect(w - sensorWidth, 0, sensorWidth, h);
+
+        // Va chạm thực tế trên Canvas Lật gương
+        let isCamLeftTouch = xMin <= sensorWidth;
+        let isCamRightTouch = xMax >= w - sensorWidth;
+
+        const cardLeft = document.querySelector(
+          '.option-card[data-side="left"]',
+        );
+        const cardRight = document.querySelector(
+          '.option-card[data-side="right"]',
+        );
+
+        /* 
+           ĐẢO CHIỀU PHÙ HỢP GÓC NHÌN ĐỐI DIỆN:
+           - Đầu bé nghiêng/lắc sang TRÁI của bé (Camera chạm mép trái) -> CHỌN ĐÁP ÁN PHẢI (cardRight)
+           - Đầu bé nghiêng/lắc sang PHẢI của bé (Camera chạm mép phải) -> CHỌN ĐÁP ÁN TRÁI (cardLeft)
+        */
+        if (isCamLeftTouch && cardRight) {
+          overlayCtx.strokeStyle = "#00E676";
+          overlayCtx.fillStyle = "rgba(76, 175, 80, 0.65)";
+          overlayCtx.fillRect(0, 0, sensorWidth, h);
+
+          camStatus.innerText = "👉 Chọn PHẢI";
+          camStatus.style.background = "#4caf50";
+          processHeadDwell("right", cardRight);
+        } else if (isCamRightTouch && cardLeft) {
+          overlayCtx.strokeStyle = "#00E676";
+          overlayCtx.fillStyle = "rgba(76, 175, 80, 0.65)";
+          overlayCtx.fillRect(w - sensorWidth, 0, sensorWidth, h);
+
+          camStatus.innerText = "👈 Chọn TRÁI";
+          camStatus.style.background = "#4caf50";
+          processHeadDwell("left", cardLeft);
+        } else {
+          overlayCtx.strokeStyle = "#FFEB3B";
+          camStatus.innerText = "Nhìn thẳng 😊";
+          camStatus.style.background = "#ff4081";
+          resetHeadFocus();
+        }
+
+        // Vẽ Khung va chạm vuông quanh đầu bé
+        overlayCtx.lineWidth = 3;
+        overlayCtx.strokeRect(xMin, yMin, xMax - xMin, yMax - yMin);
+      }
+
+      function processHeadDwell(side, cardElement) {
+        const DWELL_TIME = 800; // Thời gian giữ va chạm 0.8 giây
+
+        if (currentFocusSide !== side) {
+          resetHeadFocus();
+          currentFocusSide = side;
+          cardElement.classList.add("head-focus");
+          dwellStartTime = Date.now();
+
+          const progressBar = cardElement.querySelector(".dwell-progress-bar");
+
+          headSelectTimer = setInterval(() => {
+            const elapsed = Date.now() - dwellStartTime;
+            const progressPercent = Math.min((elapsed / DWELL_TIME) * 100, 100);
+
+            if (progressBar) progressBar.style.width = progressPercent + "%";
+
+            if (elapsed >= DWELL_TIME) {
+              clearInterval(headSelectTimer);
+              headSelectTimer = null;
+              cardElement.click();
+            }
+          }, 30);
+        }
+      }
+
+      function resetHeadFocus() {
+        if (headSelectTimer) {
+          clearInterval(headSelectTimer);
+          headSelectTimer = null;
+        }
+        currentFocusSide = null;
+        dwellStartTime = null;
+
+        document.querySelectorAll(".option-card").forEach((card) => {
+          card.classList.remove("head-focus");
+          const pBar = card.querySelector(".dwell-progress-bar");
+          if (pBar) pBar.style.width = "0%";
+        });
+      }
+
+      /* ==========================================
+       5. NỀN ĐỘNG RANDOM (TRÁI TIM HOẶC TUYẾT RƠI)
        ========================================== */
       const bgCanvas = document.getElementById("dynamic-bg");
       const bgCtx = bgCanvas.getContext("2d");
@@ -782,7 +1139,7 @@
       animateBg();
 
       /* ==========================================
-       5. HIỆU ỨNG PHÁO HOA RẦM RỘ (MASSIVE CONFETTI)
+       6. HIỆU ỨNG PHÁO HOA RẦM RỘ (MASSIVE CONFETTI)
        ========================================== */
       function triggerMassiveConfetti() {
         const duration = 1.5 * 1000;
