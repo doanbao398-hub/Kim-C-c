@@ -1,754 +1,627 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bé Vui Học Toán - Mầm Non Kỳ Diệu</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      /* 1. RESET & BASE STYLES */
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        user-select: none;
-        -webkit-user-select: none;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bé Vui Học Toán - Mầm Non Kỳ Diệu</title>
+  <!-- Google Font: Fredoka cho cảm giác hoạt hình tròn trịa, dễ thương -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* 1. RESET & BASE STYLES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
-      body {
-        font-family: "Fredoka", "Segoe UI", sans-serif;
-        background: linear-gradient(
-          135deg,
-          #ff9a9e 0%,
-          #fecfef 50%,
-          #a1c4fd 100%
-        );
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        color: #333;
-        overflow: hidden;
-        position: relative;
-      }
+    body {
+      font-family: 'Fredoka', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #333;
+      overflow: hidden;
+      position: relative;
+    }
 
-      /* Nền hiệu ứng trái tim bay */
-      #hearts-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 1;
-      }
+    /* Nền hiệu ứng trái tim bay */
+    #hearts-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
 
-      /* 2. GAME CONTAINER (ĐÃ PHÓNG TO LÊN 900PX) */
-      .game-card {
-        background: rgba(255, 255, 255, 0.96);
-        backdrop-filter: blur(10px);
-        width: 100%;
-        max-width: 900px;
-        border-radius: 42px;
-        box-shadow:
-          0 25px 60px rgba(255, 105, 180, 0.35),
-          0 0 0 10px rgba(255, 255, 255, 0.7);
-        padding: 38px 45px;
-        position: relative;
-        z-index: 2;
-        overflow: hidden;
-        animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      }
+    /* 2. GAME CONTAINER */
+    .game-card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      width: 100%;
+      max-width: 900px;
+      border-radius: 42px;
+      box-shadow: 0 25px 60px rgba(255, 105, 180, 0.35),
+                  0 0 0 10px rgba(255, 255, 255, 0.7);
+      padding: 38px 45px;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
 
-      @keyframes popIn {
-        0% {
-          transform: scale(0.8);
-          opacity: 0;
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
 
-      /* 3. HEADER & PROGRESS (PHÓNG TO NÚT LOA VÀ NGÔI SAO) */
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 28px;
-      }
+    /* 3. HEADER & PROGRESS */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
 
-      .btn-audio {
-        background: linear-gradient(135deg, #ff7297 0%, #ff4081 100%);
-        border: 5px solid #ffffff;
-        border-radius: 50%;
-        width: 75px;
-        height: 75px;
-        font-size: 36px;
-        cursor: pointer;
-        box-shadow:
-          0 8px 0 #c2185b,
-          0 12px 25px rgba(255, 64, 129, 0.35);
-        transition: all 0.15s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-      }
+    .btn-audio {
+      background: linear-gradient(135deg, #ff7297 0%, #ff4081 100%);
+      border: 5px solid #ffffff;
+      border-radius: 50%;
+      width: 75px;
+      height: 75px;
+      font-size: 36px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #c2185b, 0 12px 25px rgba(255, 64, 129, 0.35);
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
 
-      .btn-audio:active {
-        transform: translateY(4px);
-        box-shadow: 0 3px 0 #c2185b;
-      }
+    .btn-audio:active {
+      transform: translateY(4px);
+      box-shadow: 0 3px 0 #c2185b;
+    }
 
-      .btn-audio.speaking {
-        animation: heartPulse 0.5s infinite alternate;
-      }
+    .btn-audio.speaking {
+      animation: heartPulse 0.5s infinite alternate;
+    }
 
-      @keyframes heartPulse {
-        0% {
-          transform: scale(1);
-        }
-        100% {
-          transform: scale(1.15) rotate(5deg);
-        }
-      }
+    @keyframes heartPulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.15) rotate(5deg); }
+    }
 
-      .progress-bar {
-        display: flex;
-        gap: 16px;
-        background: #fff0f5;
-        padding: 12px 26px;
-        border-radius: 30px;
-        border: 4px dashed #ff80ab;
-      }
+    .progress-bar {
+      display: flex;
+      gap: 16px;
+      background: #fff0f5;
+      padding: 12px 26px;
+      border-radius: 30px;
+      border: 4px dashed #ff80ab;
+    }
 
-      .star {
-        font-size: 40px;
-        opacity: 0.25;
-        filter: grayscale(100%);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      }
+    .star {
+      font-size: 40px;
+      opacity: 0.25;
+      filter: grayscale(100%);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
 
-      .star.active {
-        opacity: 1;
-        filter: none;
-        transform: scale(1.4) rotate(12deg);
-      }
+    .star.active {
+      opacity: 1;
+      filter: none;
+      transform: scale(1.4) rotate(12deg);
+    }
 
-      /* 4. QUESTION BOX (CHỮ TO RÕ NỔI BẬT) */
-      .question-box {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        border: 4px solid #90caf9;
-        border-radius: 30px;
-        padding: 24px 28px;
-        text-align: center;
-        margin-bottom: 32px;
-        box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.9);
-      }
+    /* 4. QUESTION BOX */
+    .question-box {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border: 4px solid #90caf9;
+      border-radius: 30px;
+      padding: 24px 28px;
+      text-align: center;
+      margin-bottom: 32px;
+      box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.9);
+    }
 
-      .question-title {
-        font-size: 32px;
-        font-weight: 700;
-        color: #1565c0;
-        line-height: 1.4;
-      }
+    .question-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1565c0;
+      line-height: 1.4;
+    }
 
-      /* 5. OPTIONS GRID & CARD (PHÓNG TO CÁC Ô ĐÁP ÁN) */
-      .options-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 28px;
-      }
+    /* 5. OPTIONS GRID */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
 
-      @media (max-width: 600px) {
-        .options-grid {
-          grid-template-columns: 1fr;
-        }
-      }
+    @media (max-width: 600px) {
+      .options-grid { grid-template-columns: 1fr; }
+    }
 
-      .option-card {
-        background-color: #ffffff;
-        border: 5px solid #f0f4f8;
-        border-radius: 34px;
-        padding: 24px 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow:
-          0 12px 0 #d9e2ec,
-          0 15px 30px rgba(0, 0, 0, 0.08);
-        transition: all 0.15s ease;
-        min-height: 240px;
-      }
+    .option-card {
+      background-color: #ffffff;
+      border: 5px solid #f0f4f8;
+      border-radius: 34px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 12px 0 #d9e2ec, 0 15px 30px rgba(0,0,0,0.08);
+      transition: all 0.15s ease;
+      min-height: 240px;
+    }
 
-      .option-card:hover {
-        border-color: #ff80ab;
-        background-color: #fff8fa;
-        transform: translateY(-5px);
-      }
+    .option-card:hover {
+      border-color: #ff80ab;
+      background-color: #fff8fa;
+      transform: translateY(-5px);
+    }
 
-      .option-card:active {
-        transform: translateY(8px);
-        box-shadow: 0 4px 0 #d9e2ec;
-      }
+    .option-card:active {
+      transform: translateY(8px);
+      box-shadow: 0 4px 0 #d9e2ec;
+    }
 
-      .items-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 14px;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 16px;
-        max-width: 340px;
-      }
+    .items-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 16px;
+      max-width: 340px;
+    }
 
-      /* KÍCH THƯỚC ẢNH ĐỢT NÀY PHÓNG TO LÊN 75PX - 85PX */
-      .item-img {
-        width: 78px;
-        height: 78px;
-        object-fit: contain;
-        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-        animation: floatItem 2.5s ease-in-out infinite alternate;
-      }
+    .item-img {
+      width: 78px;
+      height: 78px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+      animation: floatItem 2.5s ease-in-out infinite alternate;
+    }
 
-      @keyframes floatItem {
-        0% {
-          transform: translateY(0);
-        }
-        100% {
-          transform: translateY(-6px);
-        }
-      }
+    @keyframes floatItem {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-6px); }
+    }
 
-      .option-label {
-        font-size: 25px;
-        font-weight: 700;
-        color: #37474f;
-        text-align: center;
-      }
+    .option-label {
+      font-size: 25px;
+      font-weight: 700;
+      color: #37474f;
+      text-align: center;
+    }
 
-      /* 6. ANIMATIONS & FEEDBACK */
-      .shake {
-        animation: shakeAnim 0.4s ease-in-out;
-        border-color: #ff5252 !important;
-        background-color: #ffebee !important;
-      }
+    /* 6. ANIMATIONS & FEEDBACK */
+    .shake {
+      animation: shakeAnim 0.4s ease-in-out;
+      border-color: #ff5252 !important;
+      background-color: #ffebee !important;
+    }
 
-      @keyframes shakeAnim {
-        0%,
-        100% {
-          transform: translateX(0);
-        }
-        20%,
-        60% {
-          transform: translateX(-14px);
-        }
-        40%,
-        80% {
-          transform: translateX(14px);
-        }
-      }
+    @keyframes shakeAnim {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-14px); }
+      40%, 80% { transform: translateX(14px); }
+    }
 
-      .correct-anim {
-        border-color: #66bb6a !important;
-        background-color: #f1f8e9 !important;
-        transform: scale(1.05);
-        box-shadow: 0 12px 0 #81c784 !important;
-      }
+    .correct-anim {
+      border-color: #66bb6a !important;
+      background-color: #f1f8e9 !important;
+      transform: scale(1.05);
+      box-shadow: 0 12px 0 #81c784 !important;
+    }
 
-      #canvas-confetti {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 10;
-      }
+    #canvas-confetti {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
 
-      /* 7. END SCREEN */
-      .end-screen {
-        display: none;
-        text-align: center;
-        padding: 40px 10px;
-      }
+    /* 7. END SCREEN */
+    .end-screen {
+      display: none;
+      text-align: center;
+      padding: 40px 10px;
+    }
 
-      .end-title {
-        font-size: 45px;
-        color: #2e7d32;
-        margin-bottom: 16px;
-        font-weight: 700;
-      }
+    .end-title {
+      font-size: 45px;
+      color: #2e7d32;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
 
-      .end-trophy {
-        font-size: 120px;
-        margin: 20px 0;
-        animation: bounceTrophy 1.2s infinite alternate;
-      }
+    .end-trophy {
+      font-size: 120px;
+      margin: 20px 0;
+      animation: bounceTrophy 1.2s infinite alternate;
+    }
 
-      @keyframes bounceTrophy {
-        0% {
-          transform: translateY(0) scale(1);
-        }
-        100% {
-          transform: translateY(-20px) scale(1.1);
-        }
-      }
+    @keyframes bounceTrophy {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-20px) scale(1.1); }
+    }
 
-      .btn-restart {
-        background: linear-gradient(135deg, #ff7043 0%, #ff3d00 100%);
-        color: white;
-        border: none;
-        border-radius: 60px;
-        padding: 20px 50px;
-        font-size: 28px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow:
-          0 10px 0 #dd2c00,
-          0 15px 30px rgba(255, 61, 0, 0.35);
-        transition: all 0.15s ease;
-        font-family: "Fredoka", sans-serif;
-      }
+    .btn-restart {
+      background: linear-gradient(135deg, #ff7043 0%, #ff3d00 100%);
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 20px 50px;
+      font-size: 28px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 0 #dd2c00, 0 15px 30px rgba(255, 61, 0, 0.35);
+      transition: all 0.15s ease;
+      font-family: 'Fredoka', sans-serif;
+    }
 
-      .btn-restart:active {
-        transform: translateY(8px);
-        box-shadow: 0 2px 0 #dd2c00;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Canvas trái tim chuyển động nền -->
-    <canvas id="hearts-bg"></canvas>
+    .btn-restart:active {
+      transform: translateY(8px);
+      box-shadow: 0 2px 0 #dd2c00;
+    }
+  </style>
+</head>
+<body>
 
-    <div class="game-card">
-      <canvas id="canvas-confetti"></canvas>
+  <!-- Canvas trái tim chuyển động nền -->
+  <canvas id="hearts-bg"></canvas>
 
-      <!-- Màn hình chơi game -->
-      <div id="quiz-screen">
-        <div class="header">
-          <button
-            class="btn-audio"
-            id="btn-audio"
-            onclick="playVoiceOver()"
-            title="Nghe cô đọc nhé!"
-          >
-            🔊
-          </button>
-          <div class="progress-bar">
-            <span class="star">⭐</span>
-            <span class="star">⭐</span>
-            <span class="star">⭐</span>
-          </div>
+  <div class="game-card">
+    <canvas id="canvas-confetti"></canvas>
+
+    <!-- Màn hình chơi game -->
+    <div id="quiz-screen">
+      <div class="header">
+        <button class="btn-audio" id="btn-audio" onclick="playVoiceOver()" title="Nghe cô đọc nhé!">🔊</button>
+        <div class="progress-bar">
+          <span class="star">⭐</span>
+          <span class="star">⭐</span>
+          <span class="star">⭐</span>
         </div>
-
-        <div class="question-box">
-          <h2 class="question-title" id="question-text">Đang tải...</h2>
-        </div>
-
-        <div class="options-grid" id="options-container"></div>
       </div>
 
-      <!-- Màn hình chiến thắng -->
-      <div id="end-screen" class="end-screen">
-        <h2 class="end-title">BÉ GIỎI XUẤT SẮC! 🎉</h2>
-        <p style="font-size: 26px; color: #555; margin-bottom: 20px">
-          Bé đã hoàn thành hết các câu hỏi rồi!
-        </p>
-        <div class="end-trophy">🏆</div>
-        <br />
-        <button class="btn-restart" onclick="restartGame()">
-          Chơi Lại Từ Đầu 🔄
-        </button>
+      <div class="question-box">
+        <h2 class="question-title" id="question-text">Đang tải...</h2>
       </div>
+
+      <div class="options-grid" id="options-container"></div>
     </div>
 
-    <script>
-      /* ==========================================
-       DỮ LIỆU CÂU HỎI (Khớp tên file của bạn)
+    <!-- Màn hình chiến thắng -->
+    <div id="end-screen" class="end-screen">
+      <h2 class="end-title">BÉ GIỎI XUẤT SẮC! 🎉</h2>
+      <p style="font-size: 26px; color: #555; margin-bottom: 20px;">Bé đã hoàn thành hết các câu hỏi rồi!</p>
+      <div class="end-trophy">🏆</div>
+      <br>
+      <button class="btn-restart" onclick="restartGame()">Chơi Lại Từ Đầu 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================
+       1. DỮ LIỆU CÂU HỎI MẦM NON
        ========================================== */
-      const quizData = [
-        {
-          id: 1,
-          question: "Bé ơi, hãy chọn đĩa có NHIỀU HƠN giúp cô nhé!",
-          options: [
-            { label: "3 cái chén", img: "chen.png", count: 3, isCorrect: true },
-            {
-              label: "2 cái muỗng",
-              img: "muon.png",
-              count: 2,
-              isCorrect: false,
-            },
-          ],
-        },
-        {
-          id: 2,
-          question: "Bé giỏi lắm! Bây giờ hãy chọn nhóm ÍT HƠN nào!",
-          options: [
-            { label: "2 cái bàn", img: "ban.png", count: 2, isCorrect: false },
-            { label: "1 cái ghế", img: "ghe.png", count: 1, isCorrect: true },
-          ],
-        },
-        {
-          id: 3,
-          question: "Bé hãy tìm nhóm có CHÉN và DĨA BẰNG NHAU nhé!",
-          options: [
-            {
-              label: "Nhóm 1 (3 chén, 3 dĩa)",
-              imgs: [
-                "chen.png",
-                "chen.png",
-                "chen.png",
-                "dia.png",
-                "dia.png",
-                "dia.png",
-              ],
-              isCorrect: true,
-            },
-            {
-              label: "Nhóm 2 (3 chén, 2 dĩa)",
-              imgs: ["chen.png", "chen.png", "chen.png", "dia.png", "dia.png"],
-              isCorrect: false,
-            },
-          ],
-        },
-      ];
+    const quizData = [
+      {
+        id: 1,
+        question: "Bé ơi, hãy chọn đĩa có NHIỀU HƠN giúp cô nhé!",
+        options: [
+          { label: "3 cái chén", img: "chen.png", count: 3, isCorrect: true },
+          { label: "2 cái muỗng", img: "muon.png", count: 2, isCorrect: false }
+        ]
+      },
+      {
+        id: 2,
+        question: "Bé giỏi lắm! Bây giờ hãy chọn nhóm ÍT HƠN nào!",
+        options: [
+          { label: "2 cái bàn", img: "ban.png", count: 2, isCorrect: false },
+          { label: "1 cái ghế", img: "ghe.png", count: 1, isCorrect: true }
+        ]
+      },
+      {
+        id: 3,
+        question: "Bé hãy tìm nhóm có CHÉN và DĨA BẰNG NHAU nhé!",
+        options: [
+          { label: "Nhóm 1 (3 chén, 3 dĩa)", imgs: ["chen.png","chen.png","chen.png","dia.png","dia.png","dia.png"], isCorrect: true },
+          { label: "Nhóm 2 (3 chén, 2 dĩa)", imgs: ["chen.png","chen.png","chen.png","dia.png","dia.png"], isCorrect: false }
+        ]
+      }
+    ];
 
-      let currentQuestionIndex = 0;
-      let isProcessing = false;
-      let femaleVoice = null;
+    let currentQuestionIndex = 0;
+    let isProcessing = false;
+    let femaleVoice = null;
 
-      /* ==========================================
-       HỆ THỐNG ÂM THANH (Web Audio API)
+    /* ==========================================
+       2. HỆ THỐNG ÂM THANH (Web Audio API)
        ========================================== */
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-      function playSound(type) {
-        if (audioCtx.state === "suspended") audioCtx.resume();
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
 
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+      if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+        osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1); 
+        osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.2); 
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+      } else {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(240, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(170, audioCtx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      }
+    }
 
-        if (type === "correct") {
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(
-            659.25,
-            audioCtx.currentTime + 0.1,
-          );
-          osc.frequency.exponentialRampToValueAtTime(
-            783.99,
-            audioCtx.currentTime + 0.2,
-          );
-          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(
-            0.01,
-            audioCtx.currentTime + 0.5,
-          );
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.5);
+    /* ==========================================
+       3. HỆ THỐNG GIỌNG ĐỌC AI NỮ TIẾNG VIỆT
+       ========================================== */
+    function setupFemaleVoice() {
+      if ('speechSynthesis' in window) {
+        const voices = window.speechSynthesis.getVoices();
+        femaleVoice = voices.find(v => v.lang.startsWith('vi') && 
+          (v.name.includes('HoaiAn') || v.name.includes('Google') || v.name.includes('Female') || v.name.includes('Nữ'))) 
+          || voices.find(v => v.lang.startsWith('vi'));
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = setupFemaleVoice;
+      setupFemaleVoice();
+    }
+
+    function playVoiceOver(customText = null) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const textToSpeak = customText || quizData[currentQuestionIndex].question;
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        
+        if (femaleVoice) utterance.voice = femaleVoice;
+        utterance.lang = 'vi-VN';
+        utterance.rate = 0.85;  // Tốc độ thong thả, chuẩn mầm non
+        utterance.pitch = 1.35; // Cao độ trong trẻo, dễ thương
+
+        const btnAudio = document.getElementById('btn-audio');
+        utterance.onstart = () => btnAudio.classList.add('speaking');
+        utterance.onend = () => btnAudio.classList.remove('speaking');
+        utterance.onerror = () => btnAudio.classList.remove('speaking');
+
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    /* ==========================================
+       4. LOGIC GAME & RENDER
+       ========================================== */
+    function loadQuestion() {
+      isProcessing = false;
+      const currentQuiz = quizData[currentQuestionIndex];
+
+      document.getElementById('question-text').innerText = currentQuiz.question;
+
+      const stars = document.querySelectorAll('.star');
+      stars.forEach((star, idx) => {
+        if (idx < currentQuestionIndex) star.classList.add('active');
+        else star.classList.remove('active');
+      });
+
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      currentQuiz.options.forEach((opt) => {
+        const card = document.createElement('div');
+        card.className = 'option-card';
+
+        let imagesHTML = '';
+        if (opt.imgs) {
+          imagesHTML = opt.imgs.map(imgFile => `<img src="${imgFile}" class="item-img" alt="icon">`).join('');
         } else {
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(240, audioCtx.currentTime);
-          osc.frequency.linearRampToValueAtTime(
-            170,
-            audioCtx.currentTime + 0.25,
-          );
-          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.3);
-        }
-      }
-
-      /* ==========================================
-       GIỌNG NỮ TIẾNG VIỆT ĐỌC CHO BÉ
-       ========================================== */
-      function setupFemaleVoice() {
-        if ("speechSynthesis" in window) {
-          const voices = window.speechSynthesis.getVoices();
-          femaleVoice =
-            voices.find(
-              (v) =>
-                v.lang.startsWith("vi") &&
-                (v.name.includes("HoaiAn") ||
-                  v.name.includes("Google") ||
-                  v.name.includes("Female") ||
-                  v.name.includes("Nữ")),
-            ) || voices.find((v) => v.lang.startsWith("vi"));
-        }
-      }
-
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.onvoiceschanged = setupFemaleVoice;
-        setupFemaleVoice();
-      }
-
-      function playVoiceOver(customText = null) {
-        if ("speechSynthesis" in window) {
-          window.speechSynthesis.cancel();
-          const textToSpeak =
-            customText || quizData[currentQuestionIndex].question;
-          const utterance = new SpeechSynthesisUtterance(textToSpeak);
-
-          if (femaleVoice) utterance.voice = femaleVoice;
-          utterance.lang = "vi-VN";
-          utterance.rate = 0.85;
-          utterance.pitch = 1.35;
-
-          const btnAudio = document.getElementById("btn-audio");
-          utterance.onstart = () => btnAudio.classList.add("speaking");
-          utterance.onend = () => btnAudio.classList.remove("speaking");
-          utterance.onerror = () => btnAudio.classList.remove("speaking");
-
-          window.speechSynthesis.speak(utterance);
-        }
-      }
-
-      /* ==========================================
-       LOGIC GAME & RENDER
-       ========================================== */
-      function loadQuestion() {
-        isProcessing = false;
-        const currentQuiz = quizData[currentQuestionIndex];
-
-        document.getElementById("question-text").innerText =
-          currentQuiz.question;
-
-        const stars = document.querySelectorAll(".star");
-        stars.forEach((star, idx) => {
-          if (idx < currentQuestionIndex) star.classList.add("active");
-          else star.classList.remove("active");
-        });
-
-        const container = document.getElementById("options-container");
-        container.innerHTML = "";
-
-        currentQuiz.options.forEach((opt) => {
-          const card = document.createElement("div");
-          card.className = "option-card";
-
-          let imagesHTML = "";
-          if (opt.imgs) {
-            imagesHTML = opt.imgs
-              .map(
-                (imgFile) =>
-                  `<img src="${imgFile}" class="item-img" alt="icon">`,
-              )
-              .join("");
-          } else {
-            for (let i = 0; i < opt.count; i++) {
-              imagesHTML += `<img src="${opt.img}" class="item-img" alt="icon">`;
-            }
+          for (let i = 0; i < opt.count; i++) {
+            imagesHTML += `<img src="${opt.img}" class="item-img" alt="icon">`;
           }
+        }
 
-          card.innerHTML = `
+        card.innerHTML = `
           <div class="items-container">${imagesHTML}</div>
           <div class="option-label">${opt.label}</div>
         `;
 
-          card.onclick = () => handleSelectOption(card, opt.isCorrect);
-          container.appendChild(card);
-        });
+        card.onclick = () => handleSelectOption(card, opt.isCorrect);
+        container.appendChild(card);
+      });
 
-        setTimeout(() => playVoiceOver(), 300);
-      }
+      setTimeout(() => playVoiceOver(), 300);
+    }
 
-      function handleSelectOption(cardElement, isCorrect) {
-        if (isProcessing) return;
+    function handleSelectOption(cardElement, isCorrect) {
+      if (isProcessing) return;
 
-        if (isCorrect) {
-          isProcessing = true;
-          playSound("correct");
-          cardElement.classList.add("correct-anim");
-          triggerConfetti();
-
-          setTimeout(() => {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < quizData.length) {
-              loadQuestion();
-            } else {
-              showEndScreen();
-            }
-          }, 1600);
-        } else {
-          playSound("wrong");
-          cardElement.classList.add("shake");
-          playVoiceOver("Ôi chưa đúng rồi, bé chọn lại nhé!");
-          setTimeout(() => cardElement.classList.remove("shake"), 400);
-        }
-      }
-
-      function showEndScreen() {
-        document.getElementById("quiz-screen").style.display = "none";
-        document.getElementById("end-screen").style.display = "block";
+      if (isCorrect) {
+        isProcessing = true;
+        playSound('correct');
+        cardElement.classList.add('correct-anim');
         triggerConfetti();
-        playVoiceOver(
-          "Bé giỏi quá! Bé đã xuất sắc trả lời đúng tất cả các bài toán!",
-        );
-      }
 
-      function restartGame() {
-        currentQuestionIndex = 0;
-        document.getElementById("end-screen").style.display = "none";
-        document.getElementById("quiz-screen").style.display = "block";
-        loadQuestion();
-      }
-
-      /* ==========================================
-       BACKGROUND TRÁI TIM NỀN
-       ========================================== */
-      const bgCanvas = document.getElementById("hearts-bg");
-      const bgCtx = bgCanvas.getContext("2d");
-      let hearts = [];
-
-      function resizeBg() {
-        bgCanvas.width = window.innerWidth;
-        bgCanvas.height = window.innerHeight;
-      }
-      window.addEventListener("resize", resizeBg);
-      resizeBg();
-
-      function createHeart() {
-        return {
-          x: Math.random() * bgCanvas.width,
-          y: bgCanvas.height + 20,
-          size: Math.random() * 18 + 12,
-          speedY: Math.random() * 1.5 + 0.8,
-          speedX: Math.sin(Math.random() * Math.PI) * 0.8,
-          opacity: Math.random() * 0.5 + 0.3,
-          color: `hsl(${Math.random() * 30 + 330}, 100%, 75%)`,
-        };
-      }
-
-      for (let i = 0; i < 25; i++) {
-        let h = createHeart();
-        h.y = Math.random() * bgCanvas.height;
-        hearts.push(h);
-      }
-
-      function drawHeart(x, y, size, color, opacity) {
-        bgCtx.save();
-        bgCtx.globalAlpha = opacity;
-        bgCtx.fillStyle = color;
-        bgCtx.beginPath();
-        let topCurveHeight = size * 0.3;
-        bgCtx.moveTo(x, y + topCurveHeight);
-        bgCtx.bezierCurveTo(
-          x,
-          y,
-          x - size / 2,
-          y,
-          x - size / 2,
-          y + topCurveHeight,
-        );
-        bgCtx.bezierCurveTo(
-          x - size / 2,
-          y + (size + topCurveHeight) / 2,
-          x,
-          y + size,
-          x,
-          y + size,
-        );
-        bgCtx.bezierCurveTo(
-          x,
-          y + size,
-          x + size / 2,
-          y + (size + topCurveHeight) / 2,
-          x + size / 2,
-          y + topCurveHeight,
-        );
-        bgCtx.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
-        bgCtx.closePath();
-        bgCtx.fill();
-        bgCtx.restore();
-      }
-
-      function animateHearts() {
-        bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-        hearts.forEach((h, index) => {
-          h.y -= h.speedY;
-          h.x += Math.sin(h.y * 0.02) * 0.5;
-          drawHeart(h.x, h.y, h.size, h.color, h.opacity);
-          if (h.y < -30) hearts[index] = createHeart();
-        });
-        requestAnimationFrame(animateHearts);
-      }
-      animateHearts();
-
-      /* ==========================================
-       CANVAS PHÁO HOA CHÚC MỪNG
-       ========================================== */
-      const canvas = document.getElementById("canvas-confetti");
-      const ctx = canvas.getContext("2d");
-      let particles = [];
-
-      function resizeConfetti() {
-        canvas.width = canvas.parentElement.clientWidth;
-        canvas.height = canvas.parentElement.clientHeight;
-      }
-      window.addEventListener("resize", resizeConfetti);
-      resizeConfetti();
-
-      function triggerConfetti() {
-        particles = [];
-        const colors = [
-          "#ff4081",
-          "#ffeb3b",
-          "#00e676",
-          "#00b0ff",
-          "#aa00ff",
-          "#ff9800",
-        ];
-        for (let i = 0; i < 70; i++) {
-          particles.push({
-            x: canvas.width / 2,
-            y: canvas.height / 2,
-            vx: (Math.random() - 0.5) * 16,
-            vy: (Math.random() - 0.7) * 16,
-            size: Math.random() * 10 + 5,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            alpha: 1,
-          });
-        }
-        animateConfetti();
-      }
-
-      function animateConfetti() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        let stillAlive = false;
-
-        particles.forEach((p) => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.35;
-          p.alpha -= 0.015;
-
-          if (p.alpha > 0) {
-            stillAlive = true;
-            ctx.globalAlpha = p.alpha;
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
+        setTimeout(() => {
+          currentQuestionIndex++;
+          if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+          } else {
+            showEndScreen();
           }
-        });
+        }, 1600);
 
-        if (stillAlive) requestAnimationFrame(animateConfetti);
-        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      } else {
+        playSound('wrong');
+        cardElement.classList.add('shake');
+        playVoiceOver("Ôi chưa đúng rồi, bé chọn lại nhé!");
+        setTimeout(() => cardElement.classList.remove('shake'), 400);
       }
+    }
 
+    function showEndScreen() {
+      document.getElementById('quiz-screen').style.display = 'none';
+      document.getElementById('end-screen').style.display = 'block';
+      triggerConfetti();
+      playVoiceOver("Bé giỏi quá! Bé đã xuất sắc trả lời đúng tất cả các bài toán!");
+    }
+
+    function restartGame() {
+      currentQuestionIndex = 0;
+      document.getElementById('end-screen').style.display = 'none';
+      document.getElementById('quiz-screen').style.display = 'block';
       loadQuestion();
-    </script>
-  </body>
+    }
+
+    /* ==========================================
+       5. NỀN TRÁI TIM CHUYỂN ĐỘNG (BACKGROUND)
+       ========================================== */
+    const bgCanvas = document.getElementById('hearts-bg');
+    const bgCtx = bgCanvas.getContext('2d');
+    let hearts = [];
+
+    function resizeBg() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeBg);
+    resizeBg();
+
+    function createHeart() {
+      return {
+        x: Math.random() * bgCanvas.width,
+        y: bgCanvas.height + 20,
+        size: Math.random() * 18 + 12,
+        speedY: Math.random() * 1.5 + 0.8,
+        speedX: Math.sin(Math.random() * Math.PI) * 0.8,
+        opacity: Math.random() * 0.5 + 0.3,
+        color: `hsl(${Math.random() * 30 + 330}, 100%, 75%)`
+      };
+    }
+
+    for (let i = 0; i < 25; i++) {
+      let h = createHeart();
+      h.y = Math.random() * bgCanvas.height;
+      hearts.push(h);
+    }
+
+    function drawHeart(x, y, size, color, opacity) {
+      bgCtx.save();
+      bgCtx.globalAlpha = opacity;
+      bgCtx.fillStyle = color;
+      bgCtx.beginPath();
+      let topCurveHeight = size * 0.3;
+      bgCtx.moveTo(x, y + topCurveHeight);
+      bgCtx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + topCurveHeight);
+      bgCtx.bezierCurveTo(x - size / 2, y + (size + topCurveHeight) / 2, x, y + size, x, y + size);
+      bgCtx.bezierCurveTo(x, y + size, x + size / 2, y + (size + topCurveHeight) / 2, x + size / 2, y + topCurveHeight);
+      bgCtx.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
+      bgCtx.closePath();
+      bgCtx.fill();
+      bgCtx.restore();
+    }
+
+    function animateHearts() {
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      hearts.forEach((h, index) => {
+        h.y -= h.speedY;
+        h.x += Math.sin(h.y * 0.02) * 0.5;
+        drawHeart(h.x, h.y, h.size, h.color, h.opacity);
+        if (h.y < -30) hearts[index] = createHeart();
+      });
+      requestAnimationFrame(animateHearts);
+    }
+    animateHearts();
+
+    /* ==========================================
+       6. CANVAS PHÁO HOA CHÚC MỪNG
+       ========================================== */
+    const canvas = document.getElementById('canvas-confetti');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeConfetti() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeConfetti);
+    resizeConfetti();
+
+    function triggerConfetti() {
+      particles = [];
+      const colors = ['#ff4081', '#ffeb3b', '#00e676', '#00b0ff', '#aa00ff', '#ff9800'];
+      for (let i = 0; i < 70; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 16,
+          vy: (Math.random() - 0.7) * 16,
+          size: Math.random() * 10 + 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1
+        });
+      }
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let stillAlive = false;
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.35;
+        p.alpha -= 0.015;
+
+        if (p.alpha > 0) {
+          stillAlive = true;
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      if (stillAlive) requestAnimationFrame(animateConfetti);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Khởi chạy game
+    loadQuestion();
+  </script>
+</body>
 </html>
