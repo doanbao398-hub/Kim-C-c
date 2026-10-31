@@ -232,7 +232,7 @@
       }
 
       /* ==========================================
-       3. BỐ CỤC CHUẨN: CAMERA Ở TRÊN, 2 ĐÁP ÁN SONG SONG 1 HÀNG NGANG
+       3. BỐ CỤC CHUẨN: DESKTOP & MOBILE
        ========================================== */
       .quiz-container {
         display: grid;
@@ -248,37 +248,27 @@
           border-radius: 18px;
         }
         .quiz-container {
-          display: flex;
-          flex-direction: column;
+          display: grid;
+          grid-template-columns: 1fr 1fr; /* 2 cột đáp án cân đối song song */
           gap: 10px;
+          align-items: center;
         }
         .cam-center-wrapper {
-          order: 1; /* Camera nằm ở giữa/trên */
-          margin: 0 auto;
-        }
-        .options-wrapper-row {
-          display: grid !important;
-          grid-template-columns: 1fr 1fr !important; /* Hai đáp án bắt buộc song song 50-50 trên 1 hàng ngang */
-          gap: 10px;
-          order: 2;
-          width: 100%;
+          grid-column: 1 / -1; /* Khung camera chiếm trọn hàng trên cùng */
+          order: -1;
+          margin: 0 auto 5px auto;
         }
         .option-card {
-          min-height: 130px !important;
+          min-height: 140px !important;
           padding: 10px !important;
         }
         .question-title {
-          font-size: 17px;
+          font-size: 16px;
         }
         .item-img {
-          width: 38px !important;
-          height: 38px !important;
+          width: 36px !important;
+          height: 36px !important;
         }
-      }
-
-      /* Container bọc 2 đáp án song song */
-      .options-wrapper-row {
-        display: contents;
       }
 
       /* CAMERA CONTAINER TRÒN Ở GIỮA */
@@ -291,8 +281,8 @@
       }
 
       .cam-circle-box {
-        width: 130px;
-        height: 130px;
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
         border: 5px solid #ff4081;
         box-shadow:
@@ -346,9 +336,10 @@
           0 6px 0 #d9e2ec,
           0 10px 20px rgba(0, 0, 0, 0.05);
         transition: all 0.2s ease;
-        min-height: 200px;
+        min-height: 190px;
         position: relative;
         overflow: hidden;
+        width: 100%;
       }
 
       .option-card.head-focus {
@@ -384,14 +375,15 @@
 
       .items-row {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         justify-content: center;
         align-items: center;
+        flex-wrap: wrap;
       }
 
       .item-img {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
         object-fit: contain;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         animation: floatItem 2.5s ease-in-out infinite alternate;
@@ -407,7 +399,7 @@
       }
 
       .option-label {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 700;
         color: #37474f;
         text-align: center;
@@ -419,7 +411,7 @@
         top: 6px;
         padding: 2px 8px;
         border-radius: 10px;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         color: white;
       }
@@ -517,7 +509,7 @@
     </style>
   </head>
   <body>
-    <!-- Canvas Nền Động Random (Trái tim hoặc Tuyết rơi) -->
+    <!-- Canvas Nền Động Random -->
     <canvas id="dynamic-bg"></canvas>
 
     <div class="game-card" id="main-game-card">
@@ -542,28 +534,26 @@
           >
             🔊
           </button>
-          <div class="progress-bar" id="progress-bar-container">
-            <!-- Render các ngôi sao -->
-          </div>
+          <div class="progress-bar" id="progress-bar-container"></div>
         </div>
 
         <div class="question-box">
           <h2 class="question-title" id="question-text">Đang tải...</h2>
         </div>
 
-        <!-- BỐ CỤC CHUẨN: CỘT TRÁI - CAMERA GIỮA - CỘT PHẢI (MOBILE TỰ ĐỘNG THÀNH 1 HÀNG NGANG) -->
+        <!-- BỐ CỤC CHUẨN ĐÃ FIX TRIỆT ĐỂ CHO MOBILE & DESKTOP -->
         <div class="quiz-container">
-          <div class="options-wrapper-row" id="left-option-wrapper"></div>
+          <div id="left-option-slot" style="width: 100%"></div>
 
           <div class="cam-center-wrapper">
             <div class="cam-circle-box">
               <video id="webcam-video" autoplay playsinline muted></video>
-              <canvas id="cam-overlay" width="130" height="130"></canvas>
+              <canvas id="cam-overlay" width="120" height="120"></canvas>
             </div>
             <div class="cam-badge" id="cam-status">Đang mở cam...</div>
           </div>
 
-          <div class="options-wrapper-row" id="right-option-wrapper"></div>
+          <div id="right-option-slot" style="width: 100%"></div>
         </div>
       </div>
 
@@ -704,7 +694,6 @@
         const audioWrong = new Audio("sai.mp3");
         const cardContainer = document.getElementById("main-game-card");
 
-        // Kích hoạt hiệu ứng Flash đỏ màn hình rực rỡ
         cardContainer.classList.add("screen-flash-red");
 
         audioWrong
@@ -764,8 +753,8 @@
         document.getElementById("question-text").innerText =
           currentQuiz.question;
 
-        const leftSlot = document.getElementById("left-option-wrapper");
-        const rightSlot = document.getElementById("right-option-wrapper");
+        const leftSlot = document.getElementById("left-option-slot");
+        const rightSlot = document.getElementById("right-option-slot");
         leftSlot.innerHTML = "";
         rightSlot.innerHTML = "";
 
@@ -851,7 +840,6 @@
         document.getElementById("quiz-screen").style.display = "none";
         document.getElementById("end-screen").style.display = "block";
 
-        // Phát âm thanh tổng kết nhacket.mp3
         const finishMusic = new Audio("nhacket.mp3");
         finishMusic
           .play()
@@ -962,8 +950,8 @@
         }
 
         const landmarks = results.multiFaceLandmarks[0];
-        const w = overlayCanvas.width; // 130px
-        const h = overlayCanvas.height; // 130px
+        const w = overlayCanvas.width; // 120px
+        const h = overlayCanvas.height; // 120px
 
         let xMin = w,
           xMax = 0,
@@ -978,14 +966,11 @@
           if (y > yMax) yMax = y;
         }
 
-        const sensorWidth = 18;
+        const sensorWidth = 16;
 
-        // Vẽ 2 Vùng Cảm Biến
         overlayCtx.fillStyle = "rgba(255, 152, 0, 0.35)";
         overlayCtx.fillRect(0, 0, sensorWidth, h);
         overlayCtx.fillRect(w - sensorWidth, 0, sensorWidth, h);
-
-        // Khắc phục lỗi chữ bị lật ngược bằng cách đảo vị trí in chữ phù hợp với góc nhìn gương
 
         let isCamLeftTouch = xMin <= sensorWidth;
         let isCamRightTouch = xMax >= w - sensorWidth;
@@ -997,11 +982,6 @@
           '.option-card[data-side="right"]',
         );
 
-        /* 
-           ĐẢO CHIỀU LOGIC GƯƠNG:
-           - Lắc sang TRÁI của bé (chạm mép trái cam) -> CHỌN PHẢI (cardRight)
-           - Lắc sang PHẢI của bé (chạm mép phải cam) -> CHỌN TRÁI (cardLeft)
-        */
         if (isCamLeftTouch && cardRight) {
           overlayCtx.strokeStyle = "#00E676";
           overlayCtx.fillStyle = "rgba(76, 175, 80, 0.65)";
@@ -1030,7 +1010,7 @@
       }
 
       function processHeadDwell(side, cardElement) {
-        const DWELL_TIME = 800; // 0.8 giây giữ đầu
+        const DWELL_TIME = 700; // Giảm nhẹ xuống 0.7s để bé dễ thao tác hơn
 
         if (currentFocusSide !== side) {
           resetHeadFocus();
