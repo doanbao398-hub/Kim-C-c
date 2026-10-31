@@ -145,6 +145,17 @@
         box-shadow: 0 2px 0 #2e7d32;
       }
 
+      .zalo-tip {
+        font-size: 13px;
+        color: #e91e63;
+        margin-top: 15px;
+        background: #fff0f5;
+        padding: 8px 12px;
+        border-radius: 12px;
+        display: inline-block;
+        border: 1px dashed #ff80ab;
+      }
+
       /* Header & Tiến trình */
       .header {
         display: flex;
@@ -329,9 +340,9 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: space-between; /* Tự động phân bổ không gian đều */
-        cursor: default; /* Không còn trỏ chuột click */
-        pointer-events: none; /* Vô hiệu hóa mọi thao tác click chạm */
+        justify-content: space-between;
+        cursor: default;
+        pointer-events: none;
         box-shadow:
           0 6px 0 #d9e2ec,
           0 10px 20px rgba(0, 0, 0, 0.05);
@@ -542,6 +553,9 @@
           Lắc đầu sang Trái hoặc Phải để chọn đáp án tương ứng!
         </p>
         <button class="btn-start" onclick="startGame()">BẮT ĐẦU CHƠI 🚀</button>
+        <div id="zalo-tip-box" style="display: none;">
+          <div class="zalo-tip">💡 Mẹo Zalo: Nếu thấy giật lag, hãy bấm dấu 3 chấm (...) góc phải và chọn "Mở bằng trình duyệt" nhé!</div>
+        </div>
       </div>
 
       <!-- Màn hình chơi game -->
@@ -564,7 +578,7 @@
 
         <!-- BỐ CỤC CHUẨN CAMERA + 2 ĐÁP ÁN -->
         <div class="quiz-container">
-          <div id="left-option-slot" style="width: 100%"></div>
+          <div id="left-option-slot" style="width: 100%;"></div>
 
           <div class="cam-center-wrapper">
             <div class="cam-circle-box">
@@ -574,7 +588,7 @@
             <div class="cam-badge" id="cam-status">Đang mở cam...</div>
           </div>
 
-          <div id="right-option-slot" style="width: 100%"></div>
+          <div id="right-option-slot" style="width: 100%;"></div>
         </div>
       </div>
 
@@ -589,16 +603,36 @@
 
         <div class="score-box" id="final-score-text">Đạt: 0/0 Sao Vàng</div>
         <div class="teacher-note" id="teacher-eval-note"></div>
-
+        
         <div>
-          <button class="btn-restart" onclick="restartGame()">
-            🔄 CHƠI LẠI TỪ ĐẦU
-          </button>
+          <button class="btn-restart" onclick="restartGame()">🔄 CHƠI LẠI TỪ ĐẦU</button>
         </div>
       </div>
     </div>
 
     <script>
+      /* ==========================================
+       0. PHÂN LUỒNG MÔI TRƯỜNG (ZALO VS BROWSER THƯỜNG)
+       ========================================== */
+      const isZaloBrowser = /Zalo/i.test(navigator.userAgent);
+
+      // Nếu chạy trên Zalo, tự động hạ thông số camera & AI để tối ưu chống giật lag
+      const cameraConfig = isZaloBrowser ? {
+          width: 200,
+          height: 150
+      } : {
+          width: 320,
+          height: 240
+      };
+
+      // Hiển thị gợi ý mẹo nhỏ nếu phát hiện mở trên Zalo
+      window.addEventListener('DOMContentLoaded', () => {
+          if (isZaloBrowser) {
+              const tipBox = document.getElementById('zalo-tip-box');
+              if (tipBox) tipBox.style.display = 'block';
+          }
+      });
+
       /* ==========================================
        1. DỮ LIỆU CÂU HỎI
        ========================================== */
@@ -831,7 +865,6 @@
         }
         rowsHTML += "</div>";
 
-        // Sử dụng bố cục flex tự nhiên, đưa nhãn lên đầu không dùng position: absolute gây đè icon
         card.innerHTML = `
           <div class="side-badge ${side}">${sideText}</div>
           ${rowsHTML}
@@ -839,7 +872,6 @@
           <div class="dwell-progress-bar"></div>
         `;
 
-        // Đã xóa sự kiện click, chỉ thao tác duy nhất bằng cử chỉ lắc đầu qua AI!
         return card;
       }
 
@@ -925,7 +957,7 @@
       }
 
       /* ==========================================
-       4. CAMERA & TÍCH HỢP AI LẮC ĐẦU
+       4. CAMERA & TÍCH HỢP AI LẮC ĐẦU (PHÂN LUỒNG TỐI ƯU)
        ========================================== */
       const videoElement = document.getElementById("webcam-video");
       const overlayCanvas = document.getElementById("cam-overlay");
@@ -949,8 +981,8 @@
         faceMesh.setOptions({
           maxNumFaces: 1,
           refineLandmarks: false,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5,
+          minDetectionConfidence: isZaloBrowser ? 0.4 : 0.5,
+          minTrackingConfidence: isZaloBrowser ? 0.4 : 0.5,
         });
 
         faceMesh.onResults(onFaceResults);
@@ -959,8 +991,8 @@
           onFrame: async () => {
             await faceMesh.send({ image: videoElement });
           },
-          width: 320,
-          height: 240,
+          width: cameraConfig.width,
+          height: cameraConfig.height,
         });
 
         camera.start().catch((err) => {
@@ -1034,11 +1066,7 @@
 
           camStatus.innerText = "👉 Lắc sang Phải";
           camStatus.style.background = "#ff5722";
-          processHeadDwell(
-            "right",
-            cardRight,
-            currentQuiz.options[1].isCorrect,
-          );
+          processHeadDwell("right", cardRight, currentQuiz.options[1].isCorrect);
         } else if (isCamRightTouch && cardLeft) {
           overlayCtx.strokeStyle = "#00E676";
           overlayCtx.fillStyle = "rgba(76, 175, 80, 0.65)";
@@ -1059,7 +1087,7 @@
       }
 
       function processHeadDwell(side, cardElement, isCorrect) {
-        const DWELL_TIME = 700; // 0.7 giây giữ đầu
+        const DWELL_TIME = 700;
 
         if (currentFocusSide !== side) {
           resetHeadFocus();
