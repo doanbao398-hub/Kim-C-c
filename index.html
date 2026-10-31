@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bé Vui Học Toán - Mầm Non</title>
+  <!-- Google Font: Fredoka cho cảm giác hoạt hình tròn trịa, dễ thương -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* 1. RESET & BASE STYLES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      font-family: 'Fredoka', 'Segoe UI', Tahoma, sans-serif;
+      /* Nền kẹo ngọt màu hồng pastel kết hợp chấm bi sinh động */
+      background-color: #ffeef8;
+      background-image: radial-gradient(#ffc1e3 15%, transparent 16%),
+                        radial-gradient(#ffc1e3 15%, transparent 16%);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      color: #4a4a4a;
+    }
+
+    /* 2. GAME CONTAINER */
+    .game-card {
+      background: linear-gradient(180deg, #ffffff 0%, #fff9fc 100%);
+      width: 100%;
+      max-width: 650px;
+      border-radius: 32px;
+      box-shadow: 0 16px 40px rgba(255, 105, 180, 0.2);
+      border: 6px solid #ffffff;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 3. HEADER & PROGRESS */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .btn-audio {
+      background: linear-gradient(135deg, #ffd54f 0%, #ffb300 100%);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      font-size: 26px;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #ffa000, 0 8px 15px rgba(0,0,0,0.1);
+      transition: all 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-audio:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #ffa000;
+    }
+
+    .btn-audio.speaking {
+      animation: pulseAudio 0.6s infinite alternate;
+    }
+
+    @keyframes pulseAudio {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.12); }
+    }
+
+    .progress-bar {
+      display: flex;
+      gap: 10px;
+      background: #fff3f8;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 2px dashed #ff80ab;
+    }
+
+    .star {
+      font-size: 28px;
+      opacity: 0.3;
+      filter: grayscale(80%);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .star.active {
+      opacity: 1;
+      filter: none;
+      transform: scale(1.3) rotate(10deg);
+    }
+
+    /* 4. QUESTION TITLE */
+    .question-box {
+      background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+      border: 3px solid #81d4fa;
+      border-radius: 22px;
+      padding: 18px 20px;
+      text-align: center;
+      margin-bottom: 26px;
+      box-shadow: inset 0 2px 5px rgba(255,255,255,0.8);
+    }
+
+    .question-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #01579b;
+      line-height: 1.4;
+    }
+
+    /* 5. OPTIONS GRID */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 500px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .option-card {
+      background-color: #ffffff;
+      border: 4px solid #e0e0e0;
+      border-radius: 24px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #cfd8dc;
+      transition: all 0.15s ease;
+      min-height: 160px;
+    }
+
+    .option-card:hover {
+      border-color: #29b6f6;
+      background-color: #f1f8ff;
+      transform: translateY(-2px);
+    }
+
+    .option-card:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #cfd8dc;
+    }
+
+    .items-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .item-icon {
+      font-size: 42px;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.12));
+      animation: floatIcon 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatIcon {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-4px); }
+    }
+
+    .option-label {
+      font-size: 19px;
+      font-weight: 600;
+      color: #37474f;
+      text-align: center;
+    }
+
+    /* 6. ANIMATIONS & FEEDBACK */
+    .shake {
+      animation: shakeAnim 0.4s ease-in-out;
+      border-color: #ef5350 !important;
+      background-color: #ffebee !important;
+    }
+
+    @keyframes shakeAnim {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+
+    .correct-anim {
+      border-color: #66bb6a !important;
+      background-color: #e8f5e9 !important;
+      transform: scale(1.04);
+      box-shadow: 0 8px 0 #81c784 !important;
+    }
+
+    #canvas-confetti {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* 7. END SCREEN */
+    .end-screen {
+      display: none;
+      text-align: center;
+      padding: 30px 10px;
+    }
+
+    .end-title {
+      font-size: 34px;
+      color: #2e7d32;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .end-trophy {
+      font-size: 90px;
+      margin: 15px 0;
+      animation: bounceTrophy 1s infinite alternate;
+    }
+
+    @keyframes bounceTrophy {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-12px); }
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #ff7043 0%, #f4511e 100%);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 16px 36px;
+      font-size: 22px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #d84315, 0 10px 20px rgba(0,0,0,0.15);
+      transition: all 0.1s ease;
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    .btn-restart:active {
+      transform: translateY(6px);
+      box-shadow: 0 0 0 #d84315;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-card">
+    <canvas id="canvas-confetti"></canvas>
+
+    <!-- Màn hình chơi game -->
+    <div id="quiz-screen">
+      <div class="header">
+        <button class="btn-audio" id="btn-audio" onclick="playVoiceOver()" title="Nghe câu hỏi">🔊</button>
+        <div class="progress-bar" id="progress-bar">
+          <span class="star">⭐</span>
+          <span class="star">⭐</span>
+          <span class="star">⭐</span>
+        </div>
+      </div>
+
+      <div class="question-box">
+        <h2 class="question-title" id="question-text">Đang tải...</h2>
+      </div>
+
+      <div class="options-grid" id="options-container">
+        <!-- Các lựa chọn sẽ được render tự động bằng JavaScript -->
+      </div>
+    </div>
+
+    <!-- Màn hình tổng kết khi hoàn thành -->
+    <div id="end-screen" class="end-screen">
+      <h2 class="end-title">BÉ GIỎI QUÁ! 🎉</h2>
+      <p style="font-size: 20px; color: #666; margin-bottom: 10px;">Bé đã hoàn thành xuất sắc các thử thách toán học!</p>
+      <div class="end-trophy">🏆</div>
+      <br>
+      <button class="btn-restart" onclick="restartGame()">Chơi Lại Từ Đầu 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================
+       1. DỮ LIỆU CÂU HỎI MẦM NON
+       ========================================== */
+    const quizData = [
+      {
+        id: 1,
+        question: "Bé ơi, hãy chọn giúp thỏ nhóm có NHIỀU HƠN nhé!",
+        options: [
+          { label: "3 cái chén", icon: "🥣", count: 3, isCorrect: true },
+          { label: "2 cái muỗng", icon: "🥄", count: 2, isCorrect: false }
+        ]
+      },
+      {
+        id: 2,
+        question: "Bé thông minh quá! Bây giờ hãy chọn nhóm ÍT HƠN nào!",
+        options: [
+          { label: "2 cái bàn", icon: "🪑", count: 2, isCorrect: false },
+          { label: "1 cái ghế", icon: "💺", count: 1, isCorrect: true }
+        ]
+      },
+      {
+        id: 3,
+        question: "Thử thách cuối: Bé tìm nhóm có CHÉN và DĨA BẰNG NHAU nhé!",
+        options: [
+          { label: "Nhóm 1 (3 chén, 3 dĩa)", icons: ["🥣","🥣","🥣","🍽️","🍽️","🍽️"], isCorrect: true },
+          { label: "Nhóm 2 (3 chén, 2 dĩa)", icons: ["🥣","🥣","🥣","🍽️","🍽️"], isCorrect: false }
+        ]
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let isProcessing = false;
+    let vietnameseVoice = null;
+
+    /* ==========================================
+       2. HỆ THỐNG ÂM THANH (Web Audio API)
+       ========================================== */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'correct') {
+        // Tiếng Ting Tinh vui tươi khi trả lời đúng
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+        osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+      } else if (type === 'wrong') {
+        // Tiếng Uh-oh nhẹ nhàng khi bấm sai
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(160, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+      }
+    }
+
+    /* ==========================================
+       3. CẤU HÌNH GIỌNG ĐỌC TIẾNG VIỆT THÂN THIỆN
+       ========================================== */
+    function initVoices() {
+      if ('speechSynthesis' in window) {
+        const voices = window.speechSynthesis.getVoices();
+        // Ưu tiên tìm giọng Tiếng Việt nữ (thường có từ khóa vi-VN hoặc Google Tiếng Việt)
+        vietnameseVoice = voices.find(v => v.lang === 'vi-VN' && (v.name.includes('Google') || v.name.includes('HoaiAn') || v.name.includes('Nu'))) ||
+                          voices.find(v => v.lang.startsWith('vi'));
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = initVoices;
+      initVoices();
+    }
+
+    function playVoiceOver(customText = null) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const textToSpeak = customText || quizData[currentQuestionIndex].question;
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        
+        if (vietnameseVoice) {
+          utterance.voice = vietnameseVoice;
+        }
+        utterance.lang = 'vi-VN';
+        utterance.rate = 0.88; // Đọc chậm rãi, phát âm rõ ràng cho bé mầm non dễ nghe
+        utterance.pitch = 1.2; // Tăng độ cao giọng nói cho trẻ trung, dễ thương
+
+        const btnAudio = document.getElementById('btn-audio');
+        utterance.onstart = () => btnAudio.classList.add('speaking');
+        utterance.onend = () => btnAudio.classList.remove('speaking');
+        utterance.onerror = () => btnAudio.classList.remove('speaking');
+
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    /* ==========================================
+       4. LOGIC ĐIỀU HƯỚNG & HIỂN THỊ GAME
+       ========================================== */
+    function loadQuestion() {
+      isProcessing = false;
+      const currentQuiz = quizData[currentQuestionIndex];
+
+      // Đổi nội dung câu hỏi
+      document.getElementById('question-text').innerText = currentQuiz.question;
+
+      // Cập nhật thanh ngôi sao tiến trình
+      const stars = document.querySelectorAll('.star');
+      stars.forEach((star, idx) => {
+        if (idx < currentQuestionIndex) {
+          star.classList.add('active');
+        } else {
+          star.classList.remove('active');
+        }
+      });
+
+      // Render các ô lựa chọn đáp án
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      currentQuiz.options.forEach((opt) => {
+        const card = document.createElement('div');
+        card.className = 'option-card';
+
+        let iconsHTML = '';
+        if (opt.icons) {
+          iconsHTML = opt.icons.map(ic => `<span class="item-icon">${ic}</span>`).join('');
+        } else {
+          for (let i = 0; i < opt.count; i++) {
+            iconsHTML += `<span class="item-icon">${opt.icon}</span>`;
+          }
+        }
+
+        card.innerHTML = `
+          <div class="items-container">${iconsHTML}</div>
+          <div class="option-label">${opt.label}</div>
+        `;
+
+        card.onclick = () => handleSelectOption(card, opt.isCorrect);
+        container.appendChild(card);
+      });
+
+      // Tự động phát âm thanh đọc câu hỏi sau 400ms
+      setTimeout(() => playVoiceOver(), 400);
+    }
+
+    function handleSelectOption(cardElement, isCorrect) {
+      if (isProcessing) return;
+
+      if (isCorrect) {
+        isProcessing = true;
+        playSound('correct');
+        cardElement.classList.add('correct-anim');
+        triggerConfetti();
+
+        setTimeout(() => {
+          currentQuestionIndex++;
+          if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+          } else {
+            showEndScreen();
+          }
+        }, 1600);
+
+      } else {
+        playSound('wrong');
+        cardElement.classList.add('shake');
+        playVoiceOver("Ôi chưa đúng rồi, bé thử chọn lại nhé!");
+        setTimeout(() => {
+          cardElement.classList.remove('shake');
+        }, 400);
+      }
+    }
+
+    function showEndScreen() {
+      document.getElementById('quiz-screen').style.display = 'none';
+      document.getElementById('end-screen').style.display = 'block';
+      triggerConfetti();
+      playVoiceOver("Bé giỏi quá! Bé đã hoàn thành xuất sắc tất cả các bài tập!");
+    }
+
+    function restartGame() {
+      currentQuestionIndex = 0;
+      document.getElementById('end-screen').style.display = 'none';
+      document.getElementById('quiz-screen').style.display = 'block';
+      loadQuestion();
+    }
+
+    /* ==========================================
+       5. HIỆU ỨNG PHÁO HOA (CANVAS CONFETTI THUẦN)
+       ========================================== */
+    const canvas = document.getElementById('canvas-confetti');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function triggerConfetti() {
+      particles = [];
+      const colors = ['#ff4081', '#ffeb3b', '#00e676', '#00b0ff', '#aa00ff', '#ff9800'];
+      for (let i = 0; i < 60; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.7) * 14,
+          size: Math.random() * 9 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1
+        });
+      }
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let stillAlive = false;
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.35; // Trọng lực rơi xuống
+        p.alpha -= 0.015;
+
+        if (p.alpha > 0) {
+          stillAlive = true;
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      if (stillAlive) {
+        requestAnimationFrame(animateConfetti);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // Khởi chạy game lần đầu tiên khi load trang
+    loadQuestion();
+  </script>
+</body>
+</html>
