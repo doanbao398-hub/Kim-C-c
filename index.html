@@ -11,20 +11,11 @@
       href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Canvas Confetti cho hiệu ứng pháo hoa -->
+    <!-- Canvas Confetti nhẹ cho hiệu ứng pháo hoa -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- Thư viện MediaPipe Face Mesh nhận diện khuôn mặt -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"
-      crossorigin="anonymous"
-    ></script>
 
     <style>
-      /* 1. RESET & BASE STYLES */
+      /* 1. RESET & BASE STYLES - TỐI ƯU HIỆU NĂNG */
       * {
         box-sizing: border-box;
         margin: 0;
@@ -46,26 +37,14 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 10px;
+        padding: 12px;
         color: #333;
         overflow-x: hidden;
-        position: relative;
-      }
-
-      /* Canvas nền động random (Trái tim / Tuyết rơi) */
-      #dynamic-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 1;
       }
 
       /* Hiệu ứng Flash đỏ màn hình khi trả lời sai */
       .screen-flash-red {
-        animation: flashRedAnim 0.4s ease;
+        animation: flashRedAnim 0.3s ease;
       }
       @keyframes flashRedAnim {
         0% {
@@ -78,31 +57,18 @@
 
       /* 2. GAME CARD */
       .game-card {
-        background: rgba(255, 255, 255, 0.96);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        background: #ffffff;
         width: 100%;
-        max-width: 950px;
-        border-radius: 30px;
+        max-width: 850px;
+        border-radius: 24px;
         box-shadow:
-          0 15px 40px rgba(255, 105, 180, 0.25),
-          0 0 0 6px rgba(255, 255, 255, 0.7);
-        padding: 16px;
+          0 10px 30px rgba(0, 0, 0, 0.1),
+          0 0 0 5px rgba(255, 255, 255, 0.8);
+        padding: 20px;
         position: relative;
         z-index: 2;
         overflow: hidden;
-        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      }
-
-      @keyframes popIn {
-        0% {
-          transform: scale(0.85);
-          opacity: 0;
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
+        will-change: transform;
       }
 
       /* Màn hình bắt đầu */
@@ -114,7 +80,7 @@
       .start-title {
         font-size: 32px;
         color: #1565c0;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         font-weight: 700;
       }
 
@@ -129,31 +95,18 @@
         color: white;
         border: none;
         border-radius: 50px;
-        padding: 15px 40px;
-        font-size: 24px;
+        padding: 14px 38px;
+        font-size: 22px;
         font-weight: 700;
         cursor: pointer;
-        box-shadow:
-          0 6px 0 #2e7d32,
-          0 10px 20px rgba(67, 160, 71, 0.4);
-        transition: all 0.1s ease;
+        box-shadow: 0 5px 0 #2e7d32;
+        transition: transform 0.1s ease;
         font-family: "Fredoka", sans-serif;
       }
 
       .btn-start:active {
-        transform: translateY(4px);
+        transform: translateY(3px);
         box-shadow: 0 2px 0 #2e7d32;
-      }
-
-      .zalo-tip {
-        font-size: 13px;
-        color: #e91e63;
-        margin-top: 15px;
-        background: #fff0f5;
-        padding: 8px 12px;
-        border-radius: 12px;
-        display: inline-block;
-        border: 1px dashed #ff80ab;
       }
 
       /* Header & Tiến trình */
@@ -161,20 +114,18 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
       }
 
       .btn-audio {
         background: linear-gradient(135deg, #ff7297 0%, #ff4081 100%);
-        border: 4px solid #ffffff;
+        border: 3px solid #ffffff;
         border-radius: 50%;
-        width: 48px;
-        height: 48px;
-        font-size: 22px;
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
         cursor: pointer;
-        box-shadow:
-          0 4px 0 #c2185b,
-          0 8px 15px rgba(255, 64, 129, 0.35);
+        box-shadow: 0 4px 0 #c2185b;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -183,7 +134,7 @@
       }
 
       .btn-audio.speaking {
-        animation: pulseBtn 0.5s infinite alternate;
+        animation: pulseBtn 0.4s infinite alternate;
       }
 
       @keyframes pulseBtn {
@@ -191,48 +142,43 @@
           transform: scale(1);
         }
         100% {
-          transform: scale(1.12) rotate(5deg);
+          transform: scale(1.1);
         }
       }
 
       .progress-bar {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         background: #fff0f5;
-        padding: 6px 14px;
+        padding: 6px 12px;
         border-radius: 20px;
         border: 2px dashed #ff80ab;
       }
 
       .star-slot {
-        font-size: 24px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        font-size: 22px;
       }
-
       .star-slot.empty {
         opacity: 0.25;
         filter: grayscale(100%);
       }
       .star-slot.gold {
         opacity: 1;
-        filter: none;
-        transform: scale(1.2) rotate(8deg);
+        transform: scale(1.1);
       }
       .star-slot.red {
         opacity: 1;
-        filter: none;
-        transform: scale(1.2) rotate(-8deg);
+        transform: scale(1.1);
       }
 
       /* Question Box */
       .question-box {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        border: 3px solid #90caf9;
-        border-radius: 18px;
+        background: #e3f2fd;
+        border: 2px solid #90caf9;
+        border-radius: 16px;
         padding: 12px 14px;
         text-align: center;
-        margin-bottom: 12px;
-        box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.9);
+        margin-bottom: 16px;
       }
 
       .question-title {
@@ -243,33 +189,25 @@
       }
 
       /* ==========================================
-       3. BỐ CỤC CHUẨN: DESKTOP & MOBILE
+       3. BỐ CỤC CHỌN ĐÁP ÁN (TỐI ƯU CỰC MƯỢT)
        ========================================== */
       .quiz-container {
         display: grid;
-        grid-template-columns: 1fr 150px 1fr;
-        gap: 12px;
-        align-items: center;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        align-items: stretch;
       }
 
-      @media (max-width: 768px) {
+      @media (max-width: 600px) {
         .game-card {
-          padding: 10px;
-          border-radius: 18px;
+          padding: 14px;
         }
         .quiz-container {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 1fr;
           gap: 10px;
-          align-items: center;
-        }
-        .cam-center-wrapper {
-          grid-column: 1 / -1;
-          order: -1;
-          margin: 0 auto 5px auto;
         }
         .option-card {
-          min-height: 150px !important;
+          min-height: 130px !important;
           padding: 10px !important;
         }
         .question-title {
@@ -281,103 +219,35 @@
         }
       }
 
-      /* CAMERA CONTAINER TRÒN Ở GIỮA */
-      .cam-center-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      }
-
-      .cam-circle-box {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        border: 5px solid #ff4081;
-        box-shadow:
-          0 0 20px rgba(255, 64, 129, 0.4),
-          inset 0 0 10px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        position: relative;
-        background: #222;
-        transform: scaleX(-1);
-      }
-
-      .cam-circle-box video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      #cam-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 2;
-      }
-
-      .cam-badge {
-        background: #ff4081;
-        color: white;
-        font-size: 11px;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 15px;
-        margin-top: 5px;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-      }
-
-      /* Thẻ đáp án cấu trúc Flexbox tự nhiên tránh đè icon */
+      /* Thẻ đáp án bấm chọn */
       .option-card {
         background-color: #ffffff;
-        border: 4px solid #f0f4f8;
+        border: 3px solid #e2e8f0;
         border-radius: 20px;
-        padding: 12px;
+        padding: 14px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
-        cursor: default;
-        pointer-events: none;
-        box-shadow:
-          0 6px 0 #d9e2ec,
-          0 10px 20px rgba(0, 0, 0, 0.05);
-        transition: all 0.2s ease;
+        cursor: pointer;
+        box-shadow: 0 6px 0 #cbd5e1;
+        transition:
+          transform 0.1s ease,
+          background-color 0.1s ease;
         min-height: 200px;
-        position: relative;
-        overflow: hidden;
         width: 100%;
+        will-change: transform;
       }
 
-      .option-card.head-focus {
-        border-color: #ff9800 !important;
-        background-color: #fff8e1 !important;
-        transform: scale(1.03);
-        box-shadow:
-          0 10px 0 #ffa726,
-          0 0 20px rgba(255, 152, 0, 0.5) !important;
+      .option-card:active {
+        transform: translateY(3px);
+        box-shadow: 0 3px 0 #cbd5e1;
       }
 
-      /* Thanh tiến trình giữ đầu */
-      .dwell-progress-bar {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 8px;
-        background: linear-gradient(90deg, #ff9800, #4caf50);
-        width: 0%;
-        transition: width 0.05s linear;
-      }
-
-      /* Nhãn chỉ dẫn Trái / Phải nằm ở luồng flex tự nhiên trên cùng */
       .side-badge {
-        padding: 3px 10px;
+        padding: 3px 12px;
         border-radius: 10px;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
         color: white;
         margin-bottom: 6px;
@@ -389,7 +259,7 @@
         background: #ff5722;
       }
 
-      /* Bố cục phân tầng đồ vật */
+      /* Bố cục phân tầng đồ vật dạng GRID căn thẳng hàng theo cột */
       .items-group-container {
         display: flex;
         flex-direction: column;
@@ -402,28 +272,27 @@
       }
 
       .items-row {
-        display: flex;
-        gap: 6px;
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(42px, max-content);
+        gap: 10px;
         justify-content: center;
         align-items: center;
-        flex-wrap: wrap;
+        width: 100%;
+      }
+
+      .items-row .grid-cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 44px;
+        height: 44px;
       }
 
       .item-img {
         width: 44px;
         height: 44px;
         object-fit: contain;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-        animation: floatItem 2.5s ease-in-out infinite alternate;
-      }
-
-      @keyframes floatItem {
-        0% {
-          transform: translateY(0);
-        }
-        100% {
-          transform: translateY(-4px);
-        }
       }
 
       .option-label {
@@ -434,9 +303,9 @@
         margin-top: 4px;
       }
 
-      /* Hiệu ứng phản hồi */
+      /* Hiệu ứng phản hồi nhanh */
       .shake {
-        animation: shakeAnim 0.4s ease-in-out;
+        animation: shakeAnim 0.3s ease-in-out;
         border-color: #ff5252 !important;
         background-color: #ffebee !important;
       }
@@ -446,28 +315,25 @@
         100% {
           transform: translateX(0);
         }
-        20%,
-        60% {
-          transform: translateX(-8px);
+        25% {
+          transform: translateX(-6px);
         }
-        40%,
-        80% {
-          transform: translateX(8px);
+        75% {
+          transform: translateX(6px);
         }
       }
 
       .correct-anim {
         border-color: #66bb6a !important;
         background-color: #f1f8e9 !important;
-        transform: scale(1.05);
-        box-shadow: 0 8px 0 #81c784 !important;
+        transform: scale(1.02);
       }
 
-      /* MÀN HÌNH TỔNG KẾT BẢNG BÁO CÁO SAO */
+      /* MÀN HÌNH TỔNG KẾT */
       .end-screen {
         display: none;
         text-align: center;
-        padding: 15px 5px;
+        padding: 10px 5px;
       }
 
       .end-title {
@@ -479,41 +345,36 @@
 
       .summary-card {
         background: #f8fafc;
-        border: 3px dashed #90caf9;
-        border-radius: 18px;
-        padding: 12px;
-        margin: 10px auto;
-        max-width: 600px;
+        border: 2px dashed #90caf9;
+        border-radius: 16px;
+        padding: 10px;
+        margin: 12px auto;
+        max-width: 550px;
       }
 
       .summary-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 10px;
+        padding: 8px 12px;
         background: white;
-        border-radius: 12px;
+        border-radius: 10px;
         margin-bottom: 6px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 600;
-      }
-
-      .summary-star {
-        font-size: 20px;
       }
 
       .score-box {
         font-size: 20px;
         font-weight: 700;
         color: #2e7d32;
-        margin-top: 10px;
+        margin-top: 8px;
       }
 
       .teacher-note {
         font-size: 15px;
         color: #555;
-        margin-top: 6px;
+        margin-top: 4px;
         font-style: italic;
       }
 
@@ -523,39 +384,28 @@
         border: none;
         border-radius: 50px;
         padding: 12px 30px;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 700;
         cursor: pointer;
-        box-shadow:
-          0 5px 0 #1565c0,
-          0 8px 15px rgba(30, 136, 229, 0.35);
-        transition: all 0.1s ease;
+        box-shadow: 0 4px 0 #1565c0;
+        transition: transform 0.1s ease;
         font-family: "Fredoka", sans-serif;
-        margin-top: 15px;
+        margin-top: 12px;
       }
 
       .btn-restart:active {
-        transform: translateY(4px);
-        box-shadow: 0 1px 0 #1565c0;
+        transform: translateY(3px);
       }
     </style>
   </head>
   <body>
-    <!-- Canvas Nền Động Random -->
-    <canvas id="dynamic-bg"></canvas>
-
     <div class="game-card" id="main-game-card">
       <!-- Màn hình bắt đầu -->
       <div id="start-screen" class="start-screen">
-        <div style="font-size: 55px; margin-bottom: 8px">🌟🧸✨</div>
+        <div style="font-size: 50px; margin-bottom: 8px">🌟🧸✨</div>
         <h1 class="start-title">BÉ VUI HỌC TOÁN</h1>
-        <p class="start-desc">
-          Lắc đầu sang Trái hoặc Phải để chọn đáp án tương ứng!
-        </p>
+        <p class="start-desc">Bé hãy chạm hoặc bấm chọn vào đáp án đúng nhé!</p>
         <button class="btn-start" onclick="startGame()">BẮT ĐẦU CHƠI 🚀</button>
-        <div id="zalo-tip-box" style="display: none;">
-          <div class="zalo-tip">💡 Mẹo Zalo: Nếu thấy giật lag, hãy bấm dấu 3 chấm (...) góc phải và chọn "Mở bằng trình duyệt" nhé!</div>
-        </div>
       </div>
 
       <!-- Màn hình chơi game -->
@@ -576,65 +426,33 @@
           <h2 class="question-title" id="question-text">Đang tải...</h2>
         </div>
 
-        <!-- BỐ CỤC CHUẨN CAMERA + 2 ĐÁP ÁN -->
+        <!-- BỐ CỤC 2 ĐÁP ÁN BẤM CHỌN -->
         <div class="quiz-container">
-          <div id="left-option-slot" style="width: 100%;"></div>
-
-          <div class="cam-center-wrapper">
-            <div class="cam-circle-box">
-              <video id="webcam-video" autoplay playsinline muted></video>
-              <canvas id="cam-overlay" width="120" height="120"></canvas>
-            </div>
-            <div class="cam-badge" id="cam-status">Đang mở cam...</div>
-          </div>
-
-          <div id="right-option-slot" style="width: 100%;"></div>
+          <div id="left-option-slot" style="width: 100%"></div>
+          <div id="right-option-slot" style="width: 100%"></div>
         </div>
       </div>
 
-      <!-- Màn hình tổng kết báo cáo kết quả -->
+      <!-- Màn hình tổng kết -->
       <div id="end-screen" class="end-screen">
         <h2 class="end-title">📊 BẢNG TỔNG KẾT BÀI HỌC</h2>
-        <p style="font-size: 15px; color: #666">
+        <p style="font-size: 14px; color: #666">
           Kết quả đánh giá từng câu hỏi của bé:
         </p>
-
         <div class="summary-card" id="summary-list"></div>
-
         <div class="score-box" id="final-score-text">Đạt: 0/0 Sao Vàng</div>
         <div class="teacher-note" id="teacher-eval-note"></div>
-        
         <div>
-          <button class="btn-restart" onclick="restartGame()">🔄 CHƠI LẠI TỪ ĐẦU</button>
+          <button class="btn-restart" onclick="restartGame()">
+            🔄 CHƠI LẠI TỪ ĐẦU
+          </button>
         </div>
       </div>
     </div>
 
     <script>
       /* ==========================================
-       0. PHÂN LUỒNG MÔI TRƯỜNG (ZALO VS BROWSER THƯỜNG)
-       ========================================== */
-      const isZaloBrowser = /Zalo/i.test(navigator.userAgent);
-
-      // Nếu chạy trên Zalo, tự động hạ thông số camera & AI để tối ưu chống giật lag
-      const cameraConfig = isZaloBrowser ? {
-          width: 200,
-          height: 150
-      } : {
-          width: 320,
-          height: 240
-      };
-
-      // Hiển thị gợi ý mẹo nhỏ nếu phát hiện mở trên Zalo
-      window.addEventListener('DOMContentLoaded', () => {
-          if (isZaloBrowser) {
-              const tipBox = document.getElementById('zalo-tip-box');
-              if (tipBox) tipBox.style.display = 'block';
-          }
-      });
-
-      /* ==========================================
-       1. DỮ LIỆU CÂU HỎI
+       1. DỮ LIỆU CÂU HỎI & PRELOAD AUDIO
        ========================================== */
       const quizData = [
         {
@@ -688,6 +506,25 @@
         },
       ];
 
+      // Kỹ thuật Cache Audio giúp phát lại tức thì không cần chờ tải lại qua mạng
+      const audioCache = {};
+      function preloadAudios() {
+        [
+          "noi1.mp3",
+          "noi2.mp3",
+          "noi3.mp3",
+          "tldung.mp3",
+          "votay.mp3",
+          "sai.mp3",
+          "nhacket.mp3",
+        ].forEach((src) => {
+          const a = new Audio();
+          a.src = src;
+          audioCache[src] = a;
+        });
+      }
+      window.addEventListener("load", preloadAudios);
+
       let currentQuestionIndex = 0;
       let isProcessing = false;
       let currentAudio = null;
@@ -695,7 +532,7 @@
       let finishMusic = null;
 
       /* ==========================================
-       2. HỆ THỐNG ÂM THANH
+       2. HỆ THỐNG ÂM THANH MƯỢT HƠN
        ========================================== */
       function playCurrentAudio() {
         if (currentAudio) {
@@ -704,28 +541,27 @@
         }
 
         const audioFile = quizData[currentQuestionIndex].audioSrc;
-        currentAudio = new Audio(audioFile);
+        currentAudio = audioCache[audioFile] || new Audio(audioFile);
+        currentAudio.currentTime = 0;
 
         const btnAudio = document.getElementById("btn-audio");
-
         currentAudio.onplay = () => btnAudio.classList.add("speaking");
         currentAudio.onended = () => btnAudio.classList.remove("speaking");
         currentAudio.onerror = () => btnAudio.classList.remove("speaking");
 
-        currentAudio.play().catch((err) => {
-          console.log("Trình duyệt chặn autoplay âm thanh câu hỏi:", err);
-          btnAudio.classList.remove("speaking");
-        });
+        currentAudio.play().catch(() => btnAudio.classList.remove("speaking"));
       }
 
       function playCorrectSequence(onFinished) {
-        const audioRight = new Audio("tldung.mp3");
-        const audioCheer = new Audio("votay.mp3");
+        const audioRight = audioCache["tldung.mp3"] || new Audio("tldung.mp3");
+        const audioCheer = audioCache["votay.mp3"] || new Audio("votay.mp3");
 
+        audioRight.currentTime = 0;
         audioRight
           .play()
           .then(() => {
             audioRight.onended = () => {
+              audioCheer.currentTime = 0;
               audioCheer
                 .play()
                 .then(() => {
@@ -739,25 +575,16 @@
             };
           })
           .catch(() => {
-            audioCheer
-              .play()
-              .then(() => {
-                audioCheer.onended = () => {
-                  if (onFinished) onFinished();
-                };
-              })
-              .catch(() => {
-                if (onFinished) onFinished();
-              });
+            if (onFinished) onFinished();
           });
       }
 
       function playWrongSequence(onFinished) {
-        const audioWrong = new Audio("sai.mp3");
+        const audioWrong = audioCache["sai.mp3"] || new Audio("sai.mp3");
         const cardContainer = document.getElementById("main-game-card");
 
         cardContainer.classList.add("screen-flash-red");
-
+        audioWrong.currentTime = 0;
         audioWrong
           .play()
           .then(() => {
@@ -770,7 +597,7 @@
             setTimeout(() => {
               cardContainer.classList.remove("screen-flash-red");
               if (onFinished) onFinished();
-            }, 800);
+            }, 500);
           });
       }
 
@@ -780,7 +607,6 @@
       function startGame() {
         document.getElementById("start-screen").style.display = "none";
         document.getElementById("quiz-screen").style.display = "block";
-        initCameraAI();
         loadQuestion();
       }
 
@@ -822,7 +648,6 @@
 
       function loadQuestion() {
         isProcessing = false;
-        resetHeadFocus();
         updateProgressBar();
 
         const currentQuiz = quizData[currentQuestionIndex];
@@ -834,42 +659,56 @@
         leftSlot.innerHTML = "";
         rightSlot.innerHTML = "";
 
-        const cardLeft = createOptionCard(
-          currentQuiz.options[0],
-          "left",
-          "👈 BÊN TRÁI",
+        leftSlot.appendChild(
+          createOptionCard(currentQuiz.options[0], "left", "ĐÁP ÁN A"),
         );
-        leftSlot.appendChild(cardLeft);
-
-        const cardRight = createOptionCard(
-          currentQuiz.options[1],
-          "right",
-          "BÊN PHẢI 👉",
+        rightSlot.appendChild(
+          createOptionCard(currentQuiz.options[1], "right", "ĐÁP ÁN B"),
         );
-        rightSlot.appendChild(cardRight);
 
-        setTimeout(() => playCurrentAudio(), 300);
+        setTimeout(() => playCurrentAudio(), 200);
       }
 
       function createOptionCard(opt, side, sideText) {
         const card = document.createElement("div");
         card.className = "option-card";
-        card.dataset.side = side;
+
+        card.onclick = () => triggerSelection(card, opt.isCorrect);
+
+        const len1 = opt.row1 ? opt.row1.length : 0;
+        const len2 = opt.row2 ? opt.row2.length : 0;
+        const maxCols = Math.max(len1, len2);
 
         let rowsHTML = '<div class="items-group-container">';
-        if (opt.row1 && opt.row1.length > 0) {
-          rowsHTML += `<div class="items-row">${opt.row1.map((img) => `<img src="${img}" class="item-img" alt="icon">`).join("")}</div>`;
+
+        if (len1 > 0) {
+          rowsHTML += `<div class="items-row" style="grid-template-columns: repeat(${maxCols}, 44px);">`;
+          for (let i = 0; i < maxCols; i++) {
+            rowsHTML +=
+              i < len1
+                ? `<div class="grid-cell"><img src="${opt.row1[i]}" class="item-img" alt="icon"></div>`
+                : `<div class="grid-cell"></div>`;
+          }
+          rowsHTML += `</div>`;
         }
-        if (opt.row2 && opt.row2.length > 0) {
-          rowsHTML += `<div class="items-row">${opt.row2.map((img) => `<img src="${img}" class="item-img" alt="icon">`).join("")}</div>`;
+
+        if (len2 > 0) {
+          rowsHTML += `<div class="items-row" style="grid-template-columns: repeat(${maxCols}, 44px);">`;
+          for (let i = 0; i < maxCols; i++) {
+            rowsHTML +=
+              i < len2
+                ? `<div class="grid-cell"><img src="${opt.row2[i]}" class="item-img" alt="icon"></div>`
+                : `<div class="grid-cell"></div>`;
+          }
+          rowsHTML += `</div>`;
         }
+
         rowsHTML += "</div>";
 
         card.innerHTML = `
           <div class="side-badge ${side}">${sideText}</div>
           ${rowsHTML}
           <div class="option-label">${opt.label}</div>
-          <div class="dwell-progress-bar"></div>
         `;
 
         return card;
@@ -878,26 +717,21 @@
       function triggerSelection(cardElement, isCorrect) {
         if (isProcessing) return;
         isProcessing = true;
-        resetHeadFocus();
         if (currentAudio) currentAudio.pause();
 
         if (isCorrect) {
           questionResults[currentQuestionIndex] = "gold";
           updateProgressBar();
           cardElement.classList.add("correct-anim");
-          triggerMassiveConfetti();
+          triggerConfetti();
 
-          playCorrectSequence(() => {
-            nextQuestionOrEnd();
-          });
+          playCorrectSequence(() => nextQuestionOrEnd());
         } else {
           questionResults[currentQuestionIndex] = "red";
           updateProgressBar();
           cardElement.classList.add("shake");
 
-          playWrongSequence(() => {
-            nextQuestionOrEnd();
-          });
+          playWrongSequence(() => nextQuestionOrEnd());
         }
       }
 
@@ -915,26 +749,23 @@
         document.getElementById("quiz-screen").style.display = "none";
         document.getElementById("end-screen").style.display = "block";
 
-        finishMusic = new Audio("nhacket.mp3");
-        finishMusic
-          .play()
-          .catch((e) => console.log("Không phát được nhạc tổng kết:", e));
+        finishMusic = audioCache["nhacket.mp3"] || new Audio("nhacket.mp3");
+        finishMusic.currentTime = 0;
+        finishMusic.play().catch(() => {});
 
         const summaryList = document.getElementById("summary-list");
         summaryList.innerHTML = "";
-
         let goldCount = 0;
 
         quizData.forEach((quiz, idx) => {
-          const res = questionResults[idx];
-          const isGold = res === "gold";
+          const isGold = questionResults[idx] === "gold";
           if (isGold) goldCount++;
 
           const row = document.createElement("div");
           row.className = "summary-row";
           row.innerHTML = `
             <span>Câu ${idx + 1}: ${quiz.options.find((o) => o.isCorrect).label}</span>
-            <span class="summary-star">${isGold ? "⭐ (Đúng)" : "🔴 (Chưa đúng)"}</span>
+            <span>${isGold ? "⭐ (Đúng)" : "🔴 (Chưa đúng)"}</span>
           `;
           summaryList.appendChild(row);
         });
@@ -946,7 +777,7 @@
         if (goldCount === quizData.length) {
           noteElem.innerText =
             "🌟 Nhận xét: Bé đạt điểm tuyệt đối! Rất xuất sắc!";
-          triggerMassiveConfetti();
+          triggerConfetti();
         } else if (goldCount >= Math.ceil(quizData.length / 2)) {
           noteElem.innerText =
             "👍 Nhận xét: Bé làm bài khá tốt, cô cần hỗ trợ bé ôn thêm các câu bị Sao Đỏ nhé!";
@@ -956,312 +787,13 @@
         }
       }
 
-      /* ==========================================
-       4. CAMERA & TÍCH HỢP AI LẮC ĐẦU (PHÂN LUỒNG TỐI ƯU)
-       ========================================== */
-      const videoElement = document.getElementById("webcam-video");
-      const overlayCanvas = document.getElementById("cam-overlay");
-      const overlayCtx = overlayCanvas.getContext("2d");
-      const camStatus = document.getElementById("cam-status");
-
-      let headSelectTimer = null;
-      let dwellStartTime = null;
-      let currentFocusSide = null;
-      let cameraStarted = false;
-
-      function initCameraAI() {
-        if (cameraStarted) return;
-        cameraStarted = true;
-
-        const faceMesh = new FaceMesh({
-          locateFile: (file) =>
-            `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+      /* Hiệu ứng pháo hoa nhẹ tối ưu số lượng hạt */
+      function triggerConfetti() {
+        confetti({
+          particleCount: 30,
+          spread: 60,
+          origin: { y: 0.6 },
         });
-
-        faceMesh.setOptions({
-          maxNumFaces: 1,
-          refineLandmarks: false,
-          minDetectionConfidence: isZaloBrowser ? 0.4 : 0.5,
-          minTrackingConfidence: isZaloBrowser ? 0.4 : 0.5,
-        });
-
-        faceMesh.onResults(onFaceResults);
-
-        const camera = new Camera(videoElement, {
-          onFrame: async () => {
-            await faceMesh.send({ image: videoElement });
-          },
-          width: cameraConfig.width,
-          height: cameraConfig.height,
-        });
-
-        camera.start().catch((err) => {
-          console.error("Lỗi bật Camera:", err);
-          camStatus.innerText = "Chưa bật Cam";
-          camStatus.style.background = "#ff5252";
-        });
-      }
-
-      function onFaceResults(results) {
-        if (
-          isProcessing ||
-          document.getElementById("quiz-screen").style.display === "none"
-        ) {
-          resetHeadFocus();
-          overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-          return;
-        }
-
-        overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-
-        if (
-          !results.multiFaceLandmarks ||
-          results.multiFaceLandmarks.length === 0
-        ) {
-          camStatus.innerText = "Tìm bé...";
-          camStatus.style.background = "#ff9800";
-          resetHeadFocus();
-          return;
-        }
-
-        const landmarks = results.multiFaceLandmarks[0];
-        const w = overlayCanvas.width;
-        const h = overlayCanvas.height;
-
-        let xMin = w,
-          xMax = 0,
-          yMin = h,
-          yMax = 0;
-        for (const lm of landmarks) {
-          const x = lm.x * w;
-          const y = lm.y * h;
-          if (x < xMin) xMin = x;
-          if (x > xMax) xMax = x;
-          if (y < yMin) yMin = y;
-          if (y > yMax) yMax = y;
-        }
-
-        const sensorWidth = 16;
-
-        overlayCtx.fillStyle = "rgba(255, 152, 0, 0.35)";
-        overlayCtx.fillRect(0, 0, sensorWidth, h);
-        overlayCtx.fillRect(w - sensorWidth, 0, sensorWidth, h);
-
-        let isCamLeftTouch = xMin <= sensorWidth;
-        let isCamRightTouch = xMax >= w - sensorWidth;
-
-        const cardLeft = document.querySelector(
-          '.option-card[data-side="left"]',
-        );
-        const cardRight = document.querySelector(
-          '.option-card[data-side="right"]',
-        );
-
-        const currentQuiz = quizData[currentQuestionIndex];
-
-        if (isCamLeftTouch && cardRight) {
-          overlayCtx.strokeStyle = "#00E676";
-          overlayCtx.fillStyle = "rgba(76, 175, 80, 0.65)";
-          overlayCtx.fillRect(0, 0, sensorWidth, h);
-
-          camStatus.innerText = "👉 Lắc sang Phải";
-          camStatus.style.background = "#ff5722";
-          processHeadDwell("right", cardRight, currentQuiz.options[1].isCorrect);
-        } else if (isCamRightTouch && cardLeft) {
-          overlayCtx.strokeStyle = "#00E676";
-          overlayCtx.fillStyle = "rgba(76, 175, 80, 0.65)";
-          overlayCtx.fillRect(w - sensorWidth, 0, sensorWidth, h);
-
-          camStatus.innerText = "👈 Lắc sang Trái";
-          camStatus.style.background = "#4caf50";
-          processHeadDwell("left", cardLeft, currentQuiz.options[0].isCorrect);
-        } else {
-          overlayCtx.strokeStyle = "#FFEB3B";
-          camStatus.innerText = "Lắc đầu chọn đáp án 😊";
-          camStatus.style.background = "#ff4081";
-          resetHeadFocus();
-        }
-
-        overlayCtx.lineWidth = 3;
-        overlayCtx.strokeRect(xMin, yMin, xMax - xMin, yMax - yMin);
-      }
-
-      function processHeadDwell(side, cardElement, isCorrect) {
-        const DWELL_TIME = 700;
-
-        if (currentFocusSide !== side) {
-          resetHeadFocus();
-          currentFocusSide = side;
-          cardElement.classList.add("head-focus");
-          dwellStartTime = Date.now();
-
-          const progressBar = cardElement.querySelector(".dwell-progress-bar");
-
-          headSelectTimer = setInterval(() => {
-            const elapsed = Date.now() - dwellStartTime;
-            const progressPercent = Math.min((elapsed / DWELL_TIME) * 100, 100);
-
-            if (progressBar) progressBar.style.width = progressPercent + "%";
-
-            if (elapsed >= DWELL_TIME) {
-              clearInterval(headSelectTimer);
-              headSelectTimer = null;
-              triggerSelection(cardElement, isCorrect);
-            }
-          }, 30);
-        }
-      }
-
-      function resetHeadFocus() {
-        if (headSelectTimer) {
-          clearInterval(headSelectTimer);
-          headSelectTimer = null;
-        }
-        currentFocusSide = null;
-        dwellStartTime = null;
-
-        document.querySelectorAll(".option-card").forEach((card) => {
-          card.classList.remove("head-focus");
-          const pBar = card.querySelector(".dwell-progress-bar");
-          if (pBar) pBar.style.width = "0%";
-        });
-      }
-
-      /* ==========================================
-       5. NỀN ĐỘNG RANDOM
-       ========================================== */
-      const bgCanvas = document.getElementById("dynamic-bg");
-      const bgCtx = bgCanvas.getContext("2d");
-      let elements = [];
-      const randomTheme = Math.random() > 0.5 ? "heart" : "snow";
-
-      function resizeBg() {
-        bgCanvas.width = window.innerWidth;
-        bgCanvas.height = window.innerHeight;
-      }
-      window.addEventListener("resize", resizeBg);
-      resizeBg();
-
-      function createElement() {
-        if (randomTheme === "heart") {
-          return {
-            x: Math.random() * bgCanvas.width,
-            y: bgCanvas.height + 20,
-            size: Math.random() * 14 + 8,
-            speedY: Math.random() * 1 + 0.4,
-            speedX: Math.sin(Math.random() * Math.PI) * 0.4,
-            opacity: Math.random() * 0.5 + 0.3,
-            color: `hsl(${Math.random() * 30 + 330}, 100%, 75%)`,
-          };
-        } else {
-          return {
-            x: Math.random() * bgCanvas.width,
-            y: -10,
-            size: Math.random() * 5 + 2,
-            speedY: Math.random() * 1.2 + 0.6,
-            speedX: Math.sin(Math.random() * Math.PI) * 0.3,
-            opacity: Math.random() * 0.7 + 0.2,
-            color: "#ffffff",
-          };
-        }
-      }
-
-      for (let i = 0; i < 25; i++) {
-        let el = createElement();
-        el.y = Math.random() * bgCanvas.height;
-        elements.push(el);
-      }
-
-      function drawHeart(x, y, size, color, opacity) {
-        bgCtx.save();
-        bgCtx.globalAlpha = opacity;
-        bgCtx.fillStyle = color;
-        bgCtx.beginPath();
-        let topCurveHeight = size * 0.3;
-        bgCtx.moveTo(x, y + topCurveHeight);
-        bgCtx.bezierCurveTo(
-          x,
-          y,
-          x - size / 2,
-          y,
-          x - size / 2,
-          y + topCurveHeight,
-        );
-        bgCtx.bezierCurveTo(
-          x - size / 2,
-          y + (size + topCurveHeight) / 2,
-          x,
-          y + size,
-          x,
-          y + size,
-        );
-        bgCtx.bezierCurveTo(
-          x,
-          y + size,
-          x + size / 2,
-          y + (size + topCurveHeight) / 2,
-          x + size / 2,
-          y + topCurveHeight,
-        );
-        bgCtx.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
-        bgCtx.closePath();
-        bgCtx.fill();
-        bgCtx.restore();
-      }
-
-      function drawSnow(x, y, size, color, opacity) {
-        bgCtx.save();
-        bgCtx.globalAlpha = opacity;
-        bgCtx.fillStyle = color;
-        bgCtx.beginPath();
-        bgCtx.arc(x, y, size, 0, Math.PI * 2);
-        bgCtx.fill();
-        bgCtx.restore();
-      }
-
-      function animateBg() {
-        bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-        elements.forEach((el, index) => {
-          if (randomTheme === "heart") {
-            el.y -= el.speedY;
-            el.x += Math.sin(el.y * 0.02) * 0.4;
-            drawHeart(el.x, el.y, el.size, el.color, el.opacity);
-            if (el.y < -30) elements[index] = createElement();
-          } else {
-            el.y += el.speedY;
-            el.x += el.speedX;
-            drawSnow(el.x, el.y, el.size, el.color, el.opacity);
-            if (el.y > bgCanvas.height + 10) elements[index] = createElement();
-          }
-        });
-        requestAnimationFrame(animateBg);
-      }
-      animateBg();
-
-      /* ==========================================
-       6. PHÁO HOA CONFETTI
-       ========================================== */
-      function triggerMassiveConfetti() {
-        const duration = 1.2 * 1000;
-        const end = Date.now() + duration;
-
-        (function frame() {
-          confetti({
-            particleCount: 5,
-            angle: 60,
-            spread: 50,
-            origin: { x: 0 },
-            colors: ["#ff4081", "#ffeb3b", "#00e676", "#00b0ff", "#ff9800"],
-          });
-          confetti({
-            particleCount: 5,
-            angle: 120,
-            spread: 50,
-            origin: { x: 1 },
-            colors: ["#ff4081", "#ffeb3b", "#00e676", "#00b0ff", "#ff9800"],
-          });
-          if (Date.now() < end) requestAnimationFrame(frame);
-        })();
       }
     </script>
   </body>
